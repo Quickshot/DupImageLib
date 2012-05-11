@@ -4,3 +4,7 @@ obj
 
 # mstest test results
 TestResults
+
+#Resharper
+_ReSharper*
+DupImage.sln.DotSettings.user
