@@ -6,7 +6,7 @@ namespace DupImage
     /// <summary>
     /// Structure for containing image information and hash values.
     /// </summary>
-    struct ImageStruct
+    public struct ImageStruct
     {
         /// <summary>
         /// Construct a new ImageStruct from FileInfo.
