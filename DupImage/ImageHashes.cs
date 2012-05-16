@@ -12,7 +12,7 @@
         /// <returns>Image similarity in range [0,1]</returns>
         public static float CompareHashes(ImageStruct image1, ImageStruct image2)
         {
-            var hashSize = image1.Hash.Length;
+            var hashSize = image1.Hash.Count;
             ulong onesInHash = 0;
 
             // XOR hashes
@@ -23,7 +23,7 @@
             }
 
             // Calculate ones using Hamming weight. See http://en.wikipedia.org/wiki/Hamming_weight
-            for (int i = 0; i < hashSize; i++)
+            for (var i = 0; i < hashSize; i++)
             {
                 var x = hashDifference[i];
                 x -= (x >> 1) & M1;
