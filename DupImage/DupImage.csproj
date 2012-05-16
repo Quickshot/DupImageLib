@@ -41,7 +41,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Class1.cs" />
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="ImageStruct.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
