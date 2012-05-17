@@ -46,21 +46,26 @@ namespace DupImage
 
         public override bool Equals(System.Object obj)
         {
-            // If null, return false
-            if (obj == null)
-            {
-                return false;
-            }
+            return obj is ImageStruct && this == (ImageStruct)obj;
+        }
 
-            // Check if castable to ImageStruct
-            if (!(obj is ImageStruct))
-            {
-                return false;
-            }
-            var img = (ImageStruct) obj;
+        public override int GetHashCode()
+        {
+            // To avoid collisions
+            var hash = 13;
+            hash = (hash * 7) + File.GetHashCode();
+            hash = (hash * 7) + Hash.GetHashCode();
+            return hash;
+        }
 
-            // Check value equality
-            return File.Equals(img.File) && Hash.Equals(img.Hash);
+        public static bool operator ==(ImageStruct first, ImageStruct second)
+        {
+            return first.File == second.File && first.Hash == second.Hash;
+        }
+
+        public static bool operator !=(ImageStruct first, ImageStruct second)
+        {
+            return !(first == second);
         }
     }
 }
