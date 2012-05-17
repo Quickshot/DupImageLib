@@ -43,5 +43,24 @@ namespace DupImage
         /// Hash of the image. Uses longs instead of ulong to be CLS compliant.
         /// </summary>
         public List<long> Hash { get; set; }
+
+        public override bool Equals(System.Object obj)
+        {
+            // If null, return false
+            if (obj == null)
+            {
+                return false;
+            }
+
+            // Check if castable to ImageStruct
+            if (!(obj is ImageStruct))
+            {
+                return false;
+            }
+            var img = (ImageStruct) obj;
+
+            // Check value equality
+            return File.Equals(img.File) && Hash.Equals(img.Hash);
+        }
     }
 }
