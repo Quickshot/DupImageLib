@@ -1,7 +1,11 @@
-﻿namespace DupImage
+﻿using System;
+
+namespace DupImage
 {
     public static class ImageHashes
     {
+
+
         /// <summary>
         /// Compare hashes of two images using Hamming distance. Result of 1 indicates images being 
         /// same, while result of 0 indicates completely different images. Hash size is inferred from 
@@ -12,6 +16,16 @@
         /// <returns>Image similarity in range [0,1]</returns>
         public static float CompareHashes(ImageStruct image1, ImageStruct image2)
         {
+            // Chack for null references. Throw exception in case of null
+            if (image1 == null)
+            {
+                throw new ArgumentNullException("image1");
+            }
+            if (image2 == null)
+            {
+                throw new ArgumentNullException("image2");
+            }
+
             var hashSize = image1.Hash.Count;
             ulong onesInHash = 0;
 
