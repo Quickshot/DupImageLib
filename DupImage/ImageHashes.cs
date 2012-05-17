@@ -1,10 +1,57 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Windows.Media.Imaging;
 
 namespace DupImage
 {
     public static class ImageHashes
     {
+        /// <summary>
+        /// Calculates a 64 bit hash for the given image using median algorithm.
+        /// </summary>
+        /// <param name="pathToImage">Path to image being hashed</param>
+        /// <returns>64 bit median hash</returns>
+        public static long CalculateMedianHash64(string pathToImage)
+        {
+            // Read image and resize. Ignores color profile for increased performance.
+            var image = new BitmapImage();
+            image.BeginInit();
+            image.UriSource = new Uri(pathToImage, UriKind.RelativeOrAbsolute);
+            image.CreateOptions = BitmapCreateOptions.IgnoreColorProfile;
+            image.DecodePixelHeight = 8;
+            image.DecodePixelWidth = 8;
+            image.EndInit();
 
+            // Convert to grayscale
+            var grayImage = new FormatConvertedBitmap();
+            grayImage.BeginInit();
+            grayImage.Source = image;
+            grayImage.DestinationFormat = System.Windows.Media.PixelFormats.Gray8;
+            grayImage.EndInit();
+
+            // Copy pixel data
+            var pixels = new byte[64];
+            grayImage.CopyPixels(pixels, 8, 0);
+
+            // Calculate median
+            var pixelList = new List<byte>(pixels);
+            pixelList.Sort();
+            // Even amount of pixels
+            var median = (byte) ((pixelList[31] + pixelList[32])/2);
+
+            // Iterate pixels and set them to 1 if over median and 0 if lower.
+            var hash = 0UL;
+            for (var i = 0; i < 64; i++)
+            {
+                if (pixels[i] > median)
+                {
+                    hash |= (1UL << i);
+                }
+            }
+
+            // Done
+            return (long)hash;
+        }
 
         /// <summary>
         /// Compare hashes of two images using Hamming distance. Result of 1 indicates images being 
