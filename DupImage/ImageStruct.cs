@@ -15,10 +15,12 @@ namespace DupImage
         /// <param name="file">FileInfo to be used.</param>
         public ImageStruct(FileInfo file)
         {
-            File = file;
+            if (file == null) throw new ArgumentNullException("file");
+
+            ImagePath = file.FullName;
 
             // Init Hash
-            Hash = new List<long>();
+            Hash = new long[1];
         }
 
         /// <summary>
@@ -27,21 +29,21 @@ namespace DupImage
         /// <param name="pathToImage">Image location</param>
         public ImageStruct(String pathToImage)
         {
-            File = new FileInfo(pathToImage);
+            ImagePath = pathToImage;
 
             // Init Hash
-            Hash = new List<long>();
+            Hash = new long[1];
         }
 
         /// <summary>
-        /// File information.
+        /// ImagePath information.
         /// </summary>
-        public FileInfo File { get; set; }
+        public String ImagePath { get; private set; }
 
         /// <summary>
         /// Hash of the image. Uses longs instead of ulong to be CLS compliant.
         /// </summary>
-        public List<long> Hash { get; set; }
+        public long[] Hash { get; set; }
 
     }
 }
