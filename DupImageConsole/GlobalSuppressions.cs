@@ -5,7 +5,7 @@
 //
 // To add a suppression to this file, right-click the message in the 
 // Error List, point to "Suppress Message(s)", and click 
-// "In Project Suppression File".
+// "In Project Suppression ImagePath".
 // You do not need to add suppressions to this file manually.
 
 [assembly: System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA2210:AssembliesShouldHaveValidStrongNames")]
