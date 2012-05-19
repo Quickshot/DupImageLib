@@ -169,7 +169,7 @@ namespace DupImage
             }
 
             // Return result as a float between 0 and 1.
-            return onesInHash/(hashSize * 64.0f);    //Assuming 64bit variables
+            return 1.0f - onesInHash/(hashSize * 64.0f);    //Assuming 64bit variables
         }
 
         // Hamming distance constants. See http://en.wikipedia.org/wiki/Hamming_weight for explanation.
