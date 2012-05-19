@@ -53,6 +53,71 @@ namespace DupImage
             return (long)hash;
         }
 
+        public static long[] CalculateMedianHash256(string pathToImage)
+        {
+            // Read image and resize. Ignores color profile for increased performance.
+            var image = new BitmapImage();
+            image.BeginInit();
+            image.UriSource = new Uri(pathToImage, UriKind.RelativeOrAbsolute);
+            image.CreateOptions = BitmapCreateOptions.IgnoreColorProfile;
+            // 16*16 image for 256 bit hash
+            image.DecodePixelHeight = 16;
+            image.DecodePixelWidth = 16;
+            image.EndInit();
+
+            // Convert to grayscale
+            var grayImage = new FormatConvertedBitmap();
+            grayImage.BeginInit();
+            grayImage.Source = image;
+            grayImage.DestinationFormat = System.Windows.Media.PixelFormats.Gray8;
+            grayImage.EndInit();
+
+            // Copy pixel data
+            var pixels = new byte[256];
+            grayImage.CopyPixels(pixels, 16, 0);
+
+            // Calculate median
+            var pixelList = new List<byte>(pixels);
+            pixelList.Sort();
+            // Even amount of pixels
+            var median = (byte)((pixelList[63] + pixelList[64]) / 2);
+
+            // Iterate pixels and set them to 1 if over median and 0 if lower.
+            var hash64 = 0UL;
+            var hash = new long[4];
+            for (var i = 0; i < 4; i++)
+            {
+                for (int j = 0; j < 64; j++)
+                {
+                    if (pixels[64*i + j] > median)
+                    {
+                        hash64 |= (1UL << j);
+                    }
+                }
+                hash[i] = (long)hash64;
+                hash64 = 0UL;
+            }
+
+            // Done
+            return hash;
+        }
+
+        public static void CalculateMedianHash(ImageStruct image, bool useLargeHash)
+        {
+            // Null check
+            if (image == null) throw new ArgumentNullException("image");
+
+            if (useLargeHash)
+            {
+                image.Hash = CalculateMedianHash256(image.ImagePath);
+            }
+            else
+            {
+                image.Hash = new long[1];
+                image.Hash[0] = CalculateMedianHash64(image.ImagePath);
+            }
+        }
+
         /// <summary>
         /// Compare hashes of two images using Hamming distance. Result of 1 indicates images being 
         /// same, while result of 0 indicates completely different images. Hash size is inferred from 
@@ -73,7 +138,7 @@ namespace DupImage
                 throw new ArgumentNullException("image2");
             }
 
-            var hashSize = image1.Hash.Count;
+            var hashSize = image1.Hash.Length;
             ulong onesInHash = 0;
 
             // XOR hashes
