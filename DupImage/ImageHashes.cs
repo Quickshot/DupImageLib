@@ -65,6 +65,7 @@ namespace DupImage
             image.BeginInit();
             image.UriSource = new Uri(pathToImage, UriKind.RelativeOrAbsolute);
             image.CreateOptions = BitmapCreateOptions.IgnoreColorProfile;
+            image.CacheOption = BitmapCacheOption.OnLoad;
             // 16*16 image for 256 bit hash
             image.DecodePixelHeight = 16;
             image.DecodePixelWidth = 16;

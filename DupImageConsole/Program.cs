@@ -1,8 +1,11 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading;
+using System.Threading.Tasks;
 using CommandLine;
 using CommandLine.Text;
 using DupImage;
@@ -29,47 +32,64 @@ namespace DupImageConsole
                 var filteredFiles = files.Where(f => searchPattern.IsMatch(f.ImagePath)).ToList();
                 
                 // Lets try to calculate hashes
+                // Used to lock access to List
+                var listLock = new object();
+                var exceptions = new ConcurrentQueue<Exception>();
+
                 var images = new List<ImageStruct>();
                 Console.WriteLine("Finding images and calculating hashes...");
-                for (var i = 0; i < filteredFiles.Count; i++)
+                Parallel.For(0, filteredFiles.Count,i =>
                 {
                     try
                     {
                         if (options.LargeHash)
                         {
                             ImageHashes.CalculateMedianHash(filteredFiles[i], true);
-                            images.Add(filteredFiles[i]);
+                            lock (listLock)
+                            {
+                                images.Add(filteredFiles[i]);
+                            }
                         }
                         else
                         {
                             ImageHashes.CalculateMedianHash(filteredFiles[i]);
-                            images.Add(filteredFiles[i]);
+                            lock (listLock)
+                            {
+                                images.Add(filteredFiles[i]);
+                            }
                         }
                     }
-                    catch (Exception)
+                    catch (Exception e)
                     {
                         // Shouldnt really be doing this, but if we get exception from Hash functions
                         // we know that the file being processed was not an image.
+                        exceptions.Enqueue(e);
                     }
-                }
+                });
 
                 Console.WriteLine("Found {0} pictures.\n", images.Count);
 
                 // Hash comparison
                 Console.WriteLine("Comparing hashes...");
-                for (int i = 0; i < images.Count; i++)
+                Parallel.For(0, images.Count, i =>
                 {
-                    for (int j = i+1; j < images.Count; j++)
+                    for (int j = i + 1; j < images.Count; j++)
                     {
                         var similarity = ImageHashes.CompareHashes(images[i], images[j]);
                         if (similarity > options.Threshold)
                         {
-                            Console.WriteLine("Match found: Similarity {0}", similarity);
-                            Console.WriteLine("{0}", images[i].ImagePath);
-                            Console.WriteLine("{0}\n", images[j].ImagePath);
+                            lock (listLock)
+                            {
+                                Console.WriteLine("Match found: Similarity {0}", similarity);
+                                Console.WriteLine("{0}", images[i].ImagePath);
+                                Console.WriteLine("{0}\n", images[j].ImagePath);
+                            }
                         }
                     }
-                }
+                });
+
+                Console.WriteLine("Processed {0} images", images.Count);
+                Console.WriteLine("Rejected image count {0}", exceptions.Count);
             }
         }
 
