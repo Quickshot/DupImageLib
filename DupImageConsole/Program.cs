@@ -19,6 +19,8 @@ namespace DupImageConsole
             if (parser.ParseArguments(args, options))
             {
                 // Parsed arguments, so lets get to work.
+                Console.WriteLine("Directory being searched: \n{0}\n", options.Directory);
+
                 var dirInfo = new DirectoryInfo(options.Directory);
                 FullDirList(dirInfo, "*.*", options.Recursive);
                 // Filter files
@@ -28,7 +30,7 @@ namespace DupImageConsole
                 
                 // Lets try to calculate hashes
                 var images = new List<ImageStruct>();
-                Console.WriteLine("Calculating hashes...");
+                Console.WriteLine("Finding images and calculating hashes...");
                 for (var i = 0; i < filteredFiles.Count; i++)
                 {
                     try
@@ -46,9 +48,13 @@ namespace DupImageConsole
                     }
                     catch (Exception)
                     {
-                        // Meh
+                        // Shouldnt really be doing this, but if we get exception from Hash functions
+                        // we know that the file being processed was not an image.
                     }
                 }
+
+                Console.WriteLine("Found {0} pictures.\n", images.Count);
+
                 // Hash comparison
                 Console.WriteLine("Comparing hashes...");
                 for (int i = 0; i < images.Count; i++)
@@ -56,11 +62,11 @@ namespace DupImageConsole
                     for (int j = i+1; j < images.Count; j++)
                     {
                         var similarity = ImageHashes.CompareHashes(images[i], images[j]);
-                        if (similarity > 0.5f)
+                        if (similarity > options.Threshold)
                         {
                             Console.WriteLine("Match found: Similarity {0}", similarity);
                             Console.WriteLine("{0}", images[i].ImagePath);
-                            Console.WriteLine("{0}", images[j].ImagePath);
+                            Console.WriteLine("{0}\n", images[j].ImagePath);
                         }
                     }
                 }
@@ -98,6 +104,11 @@ namespace DupImageConsole
 
         private sealed class Options : CommandLineOptionsBase
         {
+            public Options()
+            {
+                Threshold = 0.9f;
+            }
+
             [Option("d", "directory", HelpText = "Directory where to load images.", Required = true)]
             public string Directory { get; set; }
 
@@ -106,6 +117,9 @@ namespace DupImageConsole
 
             [Option("l", "large", HelpText = "Use 256 bit Hash.")]
             public bool LargeHash { get; set; }
+
+            [Option("t", "threshold", HelpText = "Image similarity threshold value. Should be between 0 and 1, where 1 is totally similar images.")]
+            public float Threshold { get; set; }
 
             [HelpOption]
             public string GetUsage()
