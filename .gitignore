@@ -11,3 +11,5 @@ _ReSharper*
 #Visual studio user settings
 DupImage.sln.DotSettings.user
 *.suo
+*.user
+DupImageConsole/DupImageConsole.csproj.user
