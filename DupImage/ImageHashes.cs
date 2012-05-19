@@ -53,6 +53,11 @@ namespace DupImage
             return (long)hash;
         }
 
+        /// <summary>
+        /// Calculates a 256 bit hash for the given image using median algorithm.
+        /// </summary>
+        /// <param name="pathToImage">Path to image being hashed.</param>
+        /// <returns>256 bit median hash. Composed of 4 longs.</returns>
         public static long[] CalculateMedianHash256(string pathToImage)
         {
             // Read image and resize. Ignores color profile for increased performance.
@@ -102,7 +107,12 @@ namespace DupImage
             return hash;
         }
 
-        public static void CalculateMedianHash(ImageStruct image, bool useLargeHash)
+        /// <summary>
+        /// Calculates a hash for the given ImageStruct using median algorithm. Hash size can be either 64 bits or 256 bits.
+        /// </summary>
+        /// <param name="image">ImageStruct used for hash calculation.</param>
+        /// <param name="useLargeHash">Indicates whether to calculate 256 bit hash or not. True for 256 bit hash.</param>
+        public static void CalculateMedianHash(ImageStruct image, bool useLargeHash = false)
         {
             // Null check
             if (image == null) throw new ArgumentNullException("image");
