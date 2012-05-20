@@ -113,7 +113,7 @@ namespace DupImage
         /// </summary>
         /// <param name="image">ImageStruct used for hash calculation.</param>
         /// <param name="useLargeHash">Indicates whether to calculate 256 bit hash or not. True for 256 bit hash.</param>
-        public static void CalculateMedianHash(ImageStruct image, bool useLargeHash = false)
+        public static void CalculateMedianHash(ImageStruct image, bool useLargeHash)
         {
             // Null check
             if (image == null) throw new ArgumentNullException("image");
@@ -127,6 +127,200 @@ namespace DupImage
                 image.Hash = new long[1];
                 image.Hash[0] = CalculateMedianHash64(image.ImagePath);
             }
+        }
+
+        /// <summary>
+        /// Calculates a hash for the given ImageStruct using dct algorithm
+        /// </summary>
+        /// <param name="image">ImageStruct used for hash calculation.</param>
+        /// <param name="dctMatrix">DCT coefficient matrix to be used.</param>
+        public static void CalculateDctHash(ImageStruct image, float[][] dctMatrix)
+        {
+            if (image == null) throw new ArgumentNullException("image");
+
+            image.Hash = new long[1];
+            image.Hash[0] = CalculateDctHash(image.ImagePath, dctMatrix);
+        }
+
+        /// <summary>
+        /// Calculates a hash for the given image using dct algorithm
+        /// </summary>
+        /// <param name="path">Path for the image used for hash calculation.</param>
+        /// <param name="dctMatrix">DCT coefficient matrix to be used.</param>
+        /// <returns>64bit hash of the image</returns>
+        public static long CalculateDctHash(string path, float[][] dctMatrix)
+        {
+            // Read image and resize. Ignores color profile for increased performance.
+            var image = new BitmapImage();
+            image.BeginInit();
+            image.UriSource = new Uri(path, UriKind.RelativeOrAbsolute);
+            image.CreateOptions = BitmapCreateOptions.IgnoreColorProfile;
+            image.CacheOption = BitmapCacheOption.OnLoad;
+            // 32*32 image for dct
+            image.DecodePixelHeight = 32;
+            image.DecodePixelWidth = 32;
+            image.EndInit();
+
+            // Convert to grayscale
+            var grayImage = new FormatConvertedBitmap();
+            grayImage.BeginInit();
+            grayImage.Source = image;
+            grayImage.DestinationFormat = System.Windows.Media.PixelFormats.Gray8;
+            grayImage.EndInit();
+
+            // Copy pixel data
+            var pixels = new byte[1024];
+            grayImage.CopyPixels(pixels, 32, 0);
+
+            // Convert to float
+            var fPixels = new float[1024];
+            for (var i = 0; i < 1024; i++)
+            {
+                fPixels[i] = pixels[i]/255.0f;
+            }
+
+            // Calculate dct
+            var dctPixels = ComputeDct(fPixels, dctMatrix);
+
+            // Get 8*8 area from 1,1 to 8,8, ignoring lowest frequencies for improved detection
+            var dctHashPixels = new float[64];
+            for (var x = 0; x < 8; x++)
+            {
+                for (var y = 0; y < 8; y++)
+                {
+                    dctHashPixels[x + y*8] = dctPixels[x+1][y+1];
+                }
+            }
+
+            // Calculate median
+            var pixelList = new List<float>(dctHashPixels);
+            pixelList.Sort();
+            // Even amount of pixels
+            var median = (pixelList[31] + pixelList[32]) / 2;
+
+            // Iterate pixels and set them to 1 if over median and 0 if lower.
+            var hash = 0UL;
+            for (var i = 0; i < 64; i++)
+            {
+                if (dctHashPixels[i] > median)
+                {
+                    hash |= (1UL << i);
+                }
+            }
+
+            // Done
+            return (long)hash;
+        }
+
+        /// <summary>
+        /// Calculates a hash for the given image using dct algorithm
+        /// </summary>
+        /// <param name="path">Path for the image used for hash calculation.</param>
+        /// <returns>64bit hash of the image</returns>
+        public static long CalculateDctHash(string path)
+        {
+            var dctCoef = GenerateDctMatrix(32);
+            return CalculateDctHash(path, dctCoef);
+        }
+
+        /// <summary>
+        /// Compute DCT for the image.
+        /// </summary>
+        /// <param name="image">Image to calculate the dct.</param>
+        /// <param name="dctMatrix">DCT coefficient matrix</param>
+        /// <returns>DCT transform of the image</returns>
+        private static float[][] ComputeDct(float[] image, float[][] dctMatrix)
+        {
+            // Get the size of dct matrix. We assume that the image is same size as dctMatrix
+            var size = dctMatrix.GetLength(0);
+            
+            // Make image matrix
+            var imageMat = new float[size][];
+            for (var i = 0; i < size; i++)
+            {
+                imageMat[i] = new float[size];
+            }
+
+            for (var y = 0; y < size; y++)
+            {
+                for (var x = 0; x < size; x++)
+                {
+                    imageMat[y][x] = image[x + y*size];
+                }
+            }
+
+            return Multiply(Multiply(dctMatrix, imageMat), Transpose(dctMatrix));
+        }
+
+        /// <summary>
+        /// Generates DCT coefficient matrix.
+        /// </summary>
+        /// <param name="size">Size of the matrix.</param>
+        /// <returns>Coefficient matrix.</returns>
+        public static float[][] GenerateDctMatrix(int size)
+        {
+            var matrix = new float[size][];
+            for (int i = 0; i < size; i++)
+            {
+                matrix[i] = new float[size];
+            }
+
+            var c1 = Math.Sqrt(2.0f/size);
+
+            for (var j = 0; j < size; j++)
+            {
+                matrix[0][j] = (float)Math.Sqrt(1.0d / size);
+            }
+
+            for (var j = 0; j < size; j++)
+            {
+                for (var i = 1; i < size; i++)
+                {
+                    matrix[i][j] = (float) (c1*Math.Cos(((2 * j + 1) * i * Math.PI) / (2.0d * size)));
+                }
+            }
+            return matrix;
+        }
+
+        /// <summary>
+        /// Matrix multiplication.
+        /// </summary>
+        /// <param name="A">First matrix.</param>
+        /// <param name="B">Second matric.</param>
+        /// <returns>Result matrix.</returns>
+        private static float[][] Multiply(float[][] a, float[][] b)
+        {
+            var N = a[0].Length;
+            var c = new float[N][];
+            for (int i = 0; i < N; i++)
+            {
+                c[i] = new float[N];
+            }
+
+            for (var i = 0; i < N; i++)
+                for (var k = 0; k < N; k++)
+                    for (var j = 0; j < N; j++)
+                        c[i][j] += a[i][k] * b[k][j];
+            return c;
+        }
+
+        /// <summary>
+        /// Transposes square matrix.
+        /// </summary>
+        /// <param name="mat">Matrix to be transposed</param>
+        /// <returns>Transposed matrix</returns>
+        private static float[][] Transpose(float[][] mat)
+        {
+            var size = mat[0].Length;
+            var transpose = new float[size][];
+
+            for (var i = 0; i < size; i++)
+            {
+                transpose[i] = new float[size];
+                for (int j = 0; j < size; j++)
+                    transpose[i][j] = mat[j][i];
+            }
+            return transpose;
         }
 
         /// <summary>
