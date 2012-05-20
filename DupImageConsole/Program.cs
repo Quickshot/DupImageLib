@@ -37,26 +37,43 @@ namespace DupImageConsole
                 var exceptions = new ConcurrentQueue<Exception>();
 
                 var images = new List<ImageStruct>();
+
+                // Generate dct coefficients if using dct algorithm.
+                var dctMatrix = new float[1][];
+                if (options.Algorithm == AlgorithmSelection.Dct)
+                {
+                    dctMatrix = ImageHashes.GenerateDctMatrix(32);
+                }
+
                 Console.WriteLine("Finding images and calculating hashes...");
                 Parallel.For(0, filteredFiles.Count,i =>
+                //for (var i = 0; i < filteredFiles.Count; i++)
                 {
                     try
                     {
-                        if (options.LargeHash)
+                        switch (options.Algorithm)
                         {
-                            ImageHashes.CalculateMedianHash(filteredFiles[i], true);
-                            lock (listLock)
-                            {
-                                images.Add(filteredFiles[i]);
-                            }
-                        }
-                        else
-                        {
-                            ImageHashes.CalculateMedianHash(filteredFiles[i]);
-                            lock (listLock)
-                            {
-                                images.Add(filteredFiles[i]);
-                            }
+                            case AlgorithmSelection.Median256:
+                                ImageHashes.CalculateMedianHash(filteredFiles[i], true);
+                                lock (listLock)
+                                {
+                                    images.Add(filteredFiles[i]);
+                                }
+                                break;
+                            case AlgorithmSelection.Median:
+                                ImageHashes.CalculateMedianHash(filteredFiles[i], false);
+                                lock (listLock)
+                                {
+                                    images.Add(filteredFiles[i]);
+                                }
+                                break;
+                            default:
+                                ImageHashes.CalculateDctHash(filteredFiles[i], dctMatrix);
+                                lock (listLock)
+                                {
+                                    images.Add(filteredFiles[i]);
+                                }
+                                break;
                         }
                     }
                     catch (Exception e)
@@ -71,7 +88,9 @@ namespace DupImageConsole
 
                 // Hash comparison
                 Console.WriteLine("Comparing hashes...");
+                var similarCount = 0;
                 Parallel.For(0, images.Count, i =>
+                //for(var i = 0; i < images.Count; i++)
                 {
                     for (int j = i + 1; j < images.Count; j++)
                     {
@@ -83,6 +102,7 @@ namespace DupImageConsole
                                 Console.WriteLine("Match found: Similarity {0}", similarity);
                                 Console.WriteLine("{0}", images[i].ImagePath);
                                 Console.WriteLine("{0}\n", images[j].ImagePath);
+                                similarCount++;
                             }
                         }
                     }
@@ -90,6 +110,7 @@ namespace DupImageConsole
 
                 Console.WriteLine("Processed {0} images", images.Count);
                 Console.WriteLine("Rejected image count {0}", exceptions.Count);
+                Console.WriteLine("Found {0} similar image pairs.", similarCount);
             }
         }
 
@@ -121,6 +142,12 @@ namespace DupImageConsole
             }
         }
 
+        private enum AlgorithmSelection
+        {
+            Median,
+            Median256,
+            Dct
+        }
 
         private sealed class Options : CommandLineOptionsBase
         {
@@ -135,11 +162,11 @@ namespace DupImageConsole
             [Option("r", "recursive", HelpText = "Search subdirectories for images.")]
             public bool Recursive { get; set; }
 
-            [Option("l", "large", HelpText = "Use 256 bit Hash.")]
-            public bool LargeHash { get; set; }
-
             [Option("t", "threshold", HelpText = "Image similarity threshold value. Should be between 0 and 1, where 1 is totally similar images.")]
             public float Threshold { get; set; }
+
+            [Option("a", "algorithm", HelpText = "Algorithm to be used for hash calculation. Algoritms are Median|Median256|Dct.")]
+            public AlgorithmSelection Algorithm { get; set; }
 
             [HelpOption]
             public string GetUsage()
