@@ -15,7 +15,7 @@ namespace DupImage
         /// <param name="file">FileInfo to be used.</param>
         public ImageStruct(FileInfo file)
         {
-            if (file == null) throw new ArgumentNullException("file");
+            if (file == null) throw new ArgumentNullException(nameof(file));
 
             ImagePath = file.FullName;
 
