@@ -1,6 +1,8 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DupImage", "DupImage\DupImage.csproj", "{096CBD88-E576-4374-BD1D-885B6491936D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DupImageConsole", "DupImageConsole\DupImageConsole.csproj", "{3F74D8D0-580F-467A-B0F1-E4228274A2FF}"
