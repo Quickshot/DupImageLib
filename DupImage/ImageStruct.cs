@@ -27,7 +27,7 @@ namespace DupImage
         /// Construct a new ImageStruct from image path.
         /// </summary>
         /// <param name="pathToImage">Image location</param>
-        public ImageStruct(String pathToImage)
+        public ImageStruct(string pathToImage)
         {
             ImagePath = pathToImage;
 
@@ -38,7 +38,7 @@ namespace DupImage
         /// <summary>
         /// ImagePath information.
         /// </summary>
-        public String ImagePath { get; private set; }
+        public string ImagePath { get; private set; }
 
         /// <summary>
         /// Hash of the image. Uses longs instead of ulong to be CLS compliant.
