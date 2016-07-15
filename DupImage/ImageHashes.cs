@@ -116,7 +116,7 @@ namespace DupImage
         public static void CalculateMedianHash(ImageStruct image, bool useLargeHash)
         {
             // Null check
-            if (image == null) throw new ArgumentNullException("image");
+            if (image == null) throw new ArgumentNullException(nameof(image));
 
             if (useLargeHash)
             {
@@ -136,7 +136,7 @@ namespace DupImage
         /// <param name="dctMatrix">DCT coefficient matrix to be used.</param>
         public static void CalculateDctHash(ImageStruct image, float[][] dctMatrix)
         {
-            if (image == null) throw new ArgumentNullException("image");
+            if (image == null) throw new ArgumentNullException(nameof(image));
 
             image.Hash = new long[1];
             image.Hash[0] = CalculateDctHash(image.ImagePath, dctMatrix);
@@ -285,21 +285,21 @@ namespace DupImage
         /// <summary>
         /// Matrix multiplication.
         /// </summary>
-        /// <param name="A">First matrix.</param>
-        /// <param name="B">Second matric.</param>
+        /// <param name="a">First matrix.</param>
+        /// <param name="b">Second matric.</param>
         /// <returns>Result matrix.</returns>
         private static float[][] Multiply(float[][] a, float[][] b)
         {
-            var N = a[0].Length;
-            var c = new float[N][];
-            for (int i = 0; i < N; i++)
+            var n = a[0].Length;
+            var c = new float[n][];
+            for (var i = 0; i < n; i++)
             {
-                c[i] = new float[N];
+                c[i] = new float[n];
             }
 
-            for (var i = 0; i < N; i++)
-                for (var k = 0; k < N; k++)
-                    for (var j = 0; j < N; j++)
+            for (var i = 0; i < n; i++)
+                for (var k = 0; k < n; k++)
+                    for (var j = 0; j < n; j++)
                         c[i][j] += a[i][k] * b[k][j];
             return c;
         }
@@ -336,11 +336,11 @@ namespace DupImage
             // Chack for null references. Throw exception in case of null
             if (image1 == null)
             {
-                throw new ArgumentNullException("image1");
+                throw new ArgumentNullException(nameof(image1));
             }
             if (image2 == null)
             {
-                throw new ArgumentNullException("image2");
+                throw new ArgumentNullException(nameof(image2));
             }
 
             var hashSize = image1.Hash.Length;
