@@ -155,20 +155,22 @@ namespace DupImage
             grayImage.EndInit();
 
             // Copy pixel data
-            var pixels = new byte[64];
+            var pixels = new byte[grayImage.PixelHeight * 9]; // Must be a multiple of stride for CopyPixel to work
             grayImage.CopyPixels(pixels, 9, 0);
 
             // Iterate pixels and set hash to 1 if the left pixel is brighter than the right pixel.
             var hash = 0UL;
+            var hashPos = 0;
             for (var i = 0; i < 8; i++)
             {
-                var rowStart = i * 8;
+                var rowStart = i * 9;
                 for (var j = 0; j < 8; j++)
                 {
                     if (pixels[rowStart + j] > pixels[rowStart + j + 1])
                     {
-                        hash |= (1UL << i);
+                        hash |= (1UL << hashPos);
                     }
+                    hashPos++;
                 }
             }
 
