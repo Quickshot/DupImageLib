@@ -179,6 +179,19 @@ namespace DupImage
         }
 
         /// <summary>
+        /// Calculates 64 bit hash for the given ImageStruct using difference hash.
+        /// </summary>
+        /// <param name="image">ImageStruct used for hash calculation.</param>
+        public static void CalculateDifferenceHash(ImageStruct image)
+        {
+            // Null check
+            if (image == null) throw new ArgumentNullException(nameof(image));
+
+            image.Hash = new long[1];
+            image.Hash[0] = CalculateDifferenceHash64(image.ImagePath);
+        }
+
+        /// <summary>
         /// Calculates a hash for the given ImageStruct using dct algorithm
         /// </summary>
         /// <param name="image">ImageStruct used for hash calculation.</param>
