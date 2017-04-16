@@ -130,6 +130,53 @@ namespace DupImage
         }
 
         /// <summary>
+        /// Calculates 64 bit hash for the given image using difference hash.
+        /// 
+        /// See http://www.hackerfactor.com/blog/index.php?/archives/529-Kind-of-Like-That.html for algorithm description.
+        /// </summary>
+        /// <param name="pathToImage">Path to image being hashed</param>
+        /// <returns>64 bit difference hash</returns>
+        public static long CalculateDifferenceHash64(string pathToImage)
+        {
+            // Read image and resize. Ignores color profile for increased performance.
+            var image = new BitmapImage();
+            image.BeginInit();
+            image.UriSource = new Uri(pathToImage, UriKind.RelativeOrAbsolute);
+            image.CreateOptions = BitmapCreateOptions.IgnoreColorProfile;
+            image.DecodePixelHeight = 8;
+            image.DecodePixelWidth = 9;
+            image.EndInit();
+
+            // Convert to grayscale
+            var grayImage = new FormatConvertedBitmap();
+            grayImage.BeginInit();
+            grayImage.Source = image;
+            grayImage.DestinationFormat = System.Windows.Media.PixelFormats.Gray8;
+            grayImage.EndInit();
+
+            // Copy pixel data
+            var pixels = new byte[64];
+            grayImage.CopyPixels(pixels, 9, 0);
+
+            // Iterate pixels and set hash to 1 if the left pixel is brighter than the right pixel.
+            var hash = 0UL;
+            for (var i = 0; i < 8; i++)
+            {
+                var rowStart = i * 8;
+                for (var j = 0; j < 8; j++)
+                {
+                    if (pixels[rowStart + j] > pixels[rowStart + j + 1])
+                    {
+                        hash |= (1UL << i);
+                    }
+                }
+            }
+
+            // Done
+            return (long)hash;
+        }
+
+        /// <summary>
         /// Calculates a hash for the given ImageStruct using dct algorithm
         /// </summary>
         /// <param name="image">ImageStruct used for hash calculation.</param>
