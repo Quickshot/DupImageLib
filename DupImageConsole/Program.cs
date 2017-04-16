@@ -75,6 +75,13 @@ namespace DupImageConsole
                                 images.Add(filteredFiles[i]);
                             }
                             break;
+                        case AlgorithmSelection.Difference:
+                            ImageHashes.CalculateDifferenceHash(filteredFiles[i]);
+                            lock (listLock)
+                            {
+                                images.Add(filteredFiles[i]);
+                            }
+                            break;
                         default:
                             ImageHashes.CalculateDctHash(filteredFiles[i], dctMatrix);
                             lock (listLock)
@@ -155,6 +162,7 @@ namespace DupImageConsole
         {
             Median,
             Median256,
+            Difference,
             Dct
         }
 
@@ -174,7 +182,7 @@ namespace DupImageConsole
             [Option('t', "threshold", HelpText = "Image similarity threshold value. Should be between 0 and 1, where 1 is totally similar images.")]
             public float Threshold { get; set; }
 
-            [Option('a', "algorithm", HelpText = "Algorithm to be used for hash calculation. Algoritms are Median|Median256|Dct.")]
+            [Option('a', "algorithm", HelpText = "Algorithm to be used for hash calculation. Algoritms are Median|Median256|Difference|Dct.")]
             public AlgorithmSelection Algorithm { get; set; }
         }
     }
