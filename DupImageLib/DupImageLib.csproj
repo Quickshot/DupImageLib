@@ -8,8 +8,8 @@
     <ProjectGuid>{096CBD88-E576-4374-BD1D-885B6491936D}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>DupImage</RootNamespace>
-    <AssemblyName>DupImage</AssemblyName>
+    <RootNamespace>DupImageLib</RootNamespace>
+    <AssemblyName>DupImageLib</AssemblyName>
     <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />

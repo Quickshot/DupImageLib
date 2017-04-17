@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 
-namespace DupImage
+namespace DupImageLib
 {
     /// <summary>
     /// Structure for containing image information and hash values.

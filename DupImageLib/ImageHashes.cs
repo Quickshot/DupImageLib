@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Windows.Media.Imaging;
 
-namespace DupImage
+namespace DupImageLib
 {
     public static class ImageHashes
     {
