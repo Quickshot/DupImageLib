@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Windows.Media.Imaging;
+using ImageMagick;
 
 namespace DupImageLib
 {
@@ -13,28 +13,30 @@ namespace DupImageLib
         /// <returns>64 bit median hash</returns>
         public static long CalculateMedianHash64(string pathToImage)
         {
-            // Read image and resize. Ignores color profile for increased performance.
-            var image = new BitmapImage();
-            image.BeginInit();
-            image.UriSource = new Uri(pathToImage, UriKind.RelativeOrAbsolute);
-            image.CreateOptions = BitmapCreateOptions.IgnoreColorProfile;
-            image.DecodePixelHeight = 8;
-            image.DecodePixelWidth = 8;
-            image.EndInit();
+            // Read image
+            var img = new MagickImage(pathToImage);
 
-            // Convert to grayscale
-            var grayImage = new FormatConvertedBitmap();
-            grayImage.BeginInit();
-            grayImage.Source = image;
-            grayImage.DestinationFormat = System.Windows.Media.PixelFormats.Gray8;
-            grayImage.EndInit();
+            var settings = new QuantizeSettings
+            {
+                ColorSpace = ColorSpace.Gray,
+                Colors = 256
+            };
+
+            img.Quantize(settings);
+
+            var size = new MagickGeometry(8, 8) {IgnoreAspectRatio = true};
+
+            img.Resize(size);
 
             // Copy pixel data
-            var pixels = new byte[64];
-            grayImage.CopyPixels(pixels, 8, 0);
+            var pixels = img.GetPixels().GetValues();
 
             // Calculate median
-            var pixelList = new List<byte>(pixels);
+            var pixelList = new List<byte>(96);
+            for (var i = 0; i < 64; i++)
+            {
+                pixelList.Add(pixels[3*i]);
+            }
             pixelList.Sort();
             // Even amount of pixels
             var median = (byte) ((pixelList[31] + pixelList[32])/2);
@@ -43,7 +45,7 @@ namespace DupImageLib
             var hash = 0UL;
             for (var i = 0; i < 64; i++)
             {
-                if (pixels[i] > median)
+                if (pixels[3*i] > median)
                 {
                     hash |= (1UL << i);
                 }
@@ -60,42 +62,42 @@ namespace DupImageLib
         /// <returns>256 bit median hash. Composed of 4 longs.</returns>
         public static long[] CalculateMedianHash256(string pathToImage)
         {
-            // Read image and resize. Ignores color profile for increased performance.
-            var image = new BitmapImage();
-            image.BeginInit();
-            image.UriSource = new Uri(pathToImage, UriKind.RelativeOrAbsolute);
-            image.CreateOptions = BitmapCreateOptions.IgnoreColorProfile;
-            image.CacheOption = BitmapCacheOption.OnLoad;
-            // 16*16 image for 256 bit hash
-            image.DecodePixelHeight = 16;
-            image.DecodePixelWidth = 16;
-            image.EndInit();
+            // Read image
+            var img = new MagickImage(pathToImage);
 
-            // Convert to grayscale
-            var grayImage = new FormatConvertedBitmap();
-            grayImage.BeginInit();
-            grayImage.Source = image;
-            grayImage.DestinationFormat = System.Windows.Media.PixelFormats.Gray8;
-            grayImage.EndInit();
+            var settings = new QuantizeSettings
+            {
+                ColorSpace = ColorSpace.Gray,
+                Colors = 256
+            };
+
+            img.Quantize(settings);
+
+            var size = new MagickGeometry(16, 16) {IgnoreAspectRatio = true};
+
+            img.Resize(size);
 
             // Copy pixel data
-            var pixels = new byte[256];
-            grayImage.CopyPixels(pixels, 16, 0);
+            var pixels = img.GetPixels().GetValues();
 
             // Calculate median
-            var pixelList = new List<byte>(pixels);
+            var pixelList = new List<byte>(260);
+            for (var i = 0; i < 256; i++)
+            {
+                pixelList.Add(pixels[3 * i]);
+            }
             pixelList.Sort();
             // Even amount of pixels
-            var median = (byte)((pixelList[63] + pixelList[64]) / 2);
+            var median = (byte)((pixelList[127] + pixelList[128]) / 2);
 
             // Iterate pixels and set them to 1 if over median and 0 if lower.
             var hash64 = 0UL;
             var hash = new long[4];
             for (var i = 0; i < 4; i++)
             {
-                for (int j = 0; j < 64; j++)
+                for (var j = 0; j < 64; j++)
                 {
-                    if (pixels[64*i + j] > median)
+                    if (pixels[(64*i + j) * 3] > median)
                     {
                         hash64 |= (1UL << j);
                     }
@@ -109,27 +111,6 @@ namespace DupImageLib
         }
 
         /// <summary>
-        /// Calculates a hash for the given ImageStruct using median algorithm. Hash size can be either 64 bits or 256 bits.
-        /// </summary>
-        /// <param name="image">ImageStruct used for hash calculation.</param>
-        /// <param name="useLargeHash">Indicates whether to calculate 256 bit hash or not. True for 256 bit hash.</param>
-        public static void CalculateMedianHash(ImageStruct image, bool useLargeHash)
-        {
-            // Null check
-            if (image == null) throw new ArgumentNullException(nameof(image));
-
-            if (useLargeHash)
-            {
-                image.Hash = CalculateMedianHash256(image.ImagePath);
-            }
-            else
-            {
-                image.Hash = new long[1];
-                image.Hash[0] = CalculateMedianHash64(image.ImagePath);
-            }
-        }
-
-        /// <summary>
         /// Calculates 64 bit hash for the given image using difference hash.
         /// 
         /// See http://www.hackerfactor.com/blog/index.php?/archives/529-Kind-of-Like-That.html for algorithm description.
@@ -138,25 +119,23 @@ namespace DupImageLib
         /// <returns>64 bit difference hash</returns>
         public static long CalculateDifferenceHash64(string pathToImage)
         {
-            // Read image and resize. Ignores color profile for increased performance.
-            var image = new BitmapImage();
-            image.BeginInit();
-            image.UriSource = new Uri(pathToImage, UriKind.RelativeOrAbsolute);
-            image.CreateOptions = BitmapCreateOptions.IgnoreColorProfile;
-            image.DecodePixelHeight = 8;
-            image.DecodePixelWidth = 9;
-            image.EndInit();
+            // Read image
+            var img = new MagickImage(pathToImage);
 
-            // Convert to grayscale
-            var grayImage = new FormatConvertedBitmap();
-            grayImage.BeginInit();
-            grayImage.Source = image;
-            grayImage.DestinationFormat = System.Windows.Media.PixelFormats.Gray8;
-            grayImage.EndInit();
+            var settings = new QuantizeSettings
+            {
+                ColorSpace = ColorSpace.Gray,
+                Colors = 256
+            };
+
+            img.Quantize(settings);
+
+            var size = new MagickGeometry(9, 8) { IgnoreAspectRatio = true };
+
+            img.Resize(size);
 
             // Copy pixel data
-            var pixels = new byte[grayImage.PixelHeight * 9]; // Must be a multiple of stride for CopyPixel to work
-            grayImage.CopyPixels(pixels, 9, 0);
+            var pixels = img.GetPixels().GetValues();
 
             // Iterate pixels and set hash to 1 if the left pixel is brighter than the right pixel.
             var hash = 0UL;
@@ -166,7 +145,7 @@ namespace DupImageLib
                 var rowStart = i * 9;
                 for (var j = 0; j < 8; j++)
                 {
-                    if (pixels[rowStart + j] > pixels[rowStart + j + 1])
+                    if (pixels[(rowStart + j) * 3] > pixels[(rowStart + j + 1) * 3])
                     {
                         hash |= (1UL << hashPos);
                     }
@@ -179,32 +158,6 @@ namespace DupImageLib
         }
 
         /// <summary>
-        /// Calculates 64 bit hash for the given ImageStruct using difference hash.
-        /// </summary>
-        /// <param name="image">ImageStruct used for hash calculation.</param>
-        public static void CalculateDifferenceHash(ImageStruct image)
-        {
-            // Null check
-            if (image == null) throw new ArgumentNullException(nameof(image));
-
-            image.Hash = new long[1];
-            image.Hash[0] = CalculateDifferenceHash64(image.ImagePath);
-        }
-
-        /// <summary>
-        /// Calculates a hash for the given ImageStruct using dct algorithm
-        /// </summary>
-        /// <param name="image">ImageStruct used for hash calculation.</param>
-        /// <param name="dctMatrix">DCT coefficient matrix to be used.</param>
-        public static void CalculateDctHash(ImageStruct image, float[][] dctMatrix)
-        {
-            if (image == null) throw new ArgumentNullException(nameof(image));
-
-            image.Hash = new long[1];
-            image.Hash[0] = CalculateDctHash(image.ImagePath, dctMatrix);
-        }
-
-        /// <summary>
         /// Calculates a hash for the given image using dct algorithm
         /// </summary>
         /// <param name="path">Path for the image used for hash calculation.</param>
@@ -212,33 +165,29 @@ namespace DupImageLib
         /// <returns>64bit hash of the image</returns>
         public static long CalculateDctHash(string path, float[][] dctMatrix)
         {
-            // Read image and resize. Ignores color profile for increased performance.
-            var image = new BitmapImage();
-            image.BeginInit();
-            image.UriSource = new Uri(path, UriKind.RelativeOrAbsolute);
-            image.CreateOptions = BitmapCreateOptions.IgnoreColorProfile;
-            image.CacheOption = BitmapCacheOption.OnLoad;
-            // 32*32 image for dct
-            image.DecodePixelHeight = 32;
-            image.DecodePixelWidth = 32;
-            image.EndInit();
+            // Read image
+            var img = new MagickImage(path);
 
-            // Convert to grayscale
-            var grayImage = new FormatConvertedBitmap();
-            grayImage.BeginInit();
-            grayImage.Source = image;
-            grayImage.DestinationFormat = System.Windows.Media.PixelFormats.Gray8;
-            grayImage.EndInit();
+            var settings = new QuantizeSettings
+            {
+                ColorSpace = ColorSpace.Gray,
+                Colors = 256
+            };
+
+            img.Quantize(settings);
+
+            var size = new MagickGeometry(32, 32) { IgnoreAspectRatio = true };
+
+            img.Resize(size);
 
             // Copy pixel data
-            var pixels = new byte[1024];
-            grayImage.CopyPixels(pixels, 32, 0);
+            var imgPixels = img.GetPixels().GetValues();
 
-            // Convert to float
+            // Copy pixel data and convert to float
             var fPixels = new float[1024];
             for (var i = 0; i < 1024; i++)
             {
-                fPixels[i] = pixels[i]/255.0f;
+                fPixels[i] = imgPixels[i * 3] / 255.0f;
             }
 
             // Calculate dct
@@ -390,29 +339,25 @@ namespace DupImageLib
         /// same, while result of 0 indicates completely different images. Hash size is inferred from 
         /// the size of Hash array in first image.
         /// </summary>
-        /// <param name="image1">First image to be compared</param>
-        /// <param name="image2">Second image to be compared</param>
+        /// <param name="hash1">First hash to be compared</param>
+        /// <param name="hash2">Second hash to be compared</param>
         /// <returns>Image similarity in range [0,1]</returns>
-        public static float CompareHashes(ImageStruct image1, ImageStruct image2)
+        public static float CompareHashes(long[] hash1, long[] hash2)
         {
-            // Chack for null references. Throw exception in case of null
-            if (image1 == null)
+            // Check that hash lengths are same
+            if (hash1.Length != hash2.Length)
             {
-                throw new ArgumentNullException(nameof(image1));
-            }
-            if (image2 == null)
-            {
-                throw new ArgumentNullException(nameof(image2));
+                throw new ArgumentException("Lengths of hash1 and hash2 do not match.");
             }
 
-            var hashSize = image1.Hash.Length;
+            var hashSize = hash1.Length;
             ulong onesInHash = 0;
 
             // XOR hashes
             var hashDifference = new ulong[hashSize];
             for (var i = 0; i < hashSize; i++)  // Slightly faster than foreach
             {
-                hashDifference[i] = (ulong)image1.Hash[i] ^ (ulong)image2.Hash[i];
+                hashDifference[i] = (ulong)hash1[i] ^ (ulong)hash2[i];
             }
 
             // Calculate ones using Hamming weight. See http://en.wikipedia.org/wiki/Hamming_weight
