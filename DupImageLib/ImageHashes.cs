@@ -1,42 +1,33 @@
 ﻿using System;
 using System.Collections.Generic;
-using ImageMagick;
 
 namespace DupImageLib
 {
-    public static class ImageHashes
+    public class ImageHashes
     {
+        private readonly IImageTransformer _transformer;
+
+        public ImageHashes()
+        {
+            _transformer = new ImageMagickTransformer();
+        }
+
+        public ImageHashes(IImageTransformer transformer)
+        {
+            _transformer = transformer;
+        }
+
         /// <summary>
         /// Calculates a 64 bit hash for the given image using median algorithm.
         /// </summary>
         /// <param name="pathToImage">Path to image being hashed</param>
         /// <returns>64 bit median hash</returns>
-        public static long CalculateMedianHash64(string pathToImage)
+        public long CalculateMedianHash64(string pathToImage)
         {
-            // Read image
-            var img = new MagickImage(pathToImage);
-
-            var settings = new QuantizeSettings
-            {
-                ColorSpace = ColorSpace.Gray,
-                Colors = 256
-            };
-
-            img.Quantize(settings);
-
-            var size = new MagickGeometry(8, 8) {IgnoreAspectRatio = true};
-
-            img.Resize(size);
-
-            // Copy pixel data
-            var pixels = img.GetPixels().GetValues();
+            var pixels = _transformer.TransformImage(pathToImage, 8, 8);
 
             // Calculate median
-            var pixelList = new List<byte>(96);
-            for (var i = 0; i < 64; i++)
-            {
-                pixelList.Add(pixels[3*i]);
-            }
+            var pixelList = new List<byte>(pixels);
             pixelList.Sort();
             // Even amount of pixels
             var median = (byte) ((pixelList[31] + pixelList[32])/2);
@@ -45,7 +36,7 @@ namespace DupImageLib
             var hash = 0UL;
             for (var i = 0; i < 64; i++)
             {
-                if (pixels[3*i] > median)
+                if (pixels[i] > median)
                 {
                     hash |= (1UL << i);
                 }
@@ -60,32 +51,12 @@ namespace DupImageLib
         /// </summary>
         /// <param name="pathToImage">Path to image being hashed.</param>
         /// <returns>256 bit median hash. Composed of 4 longs.</returns>
-        public static long[] CalculateMedianHash256(string pathToImage)
+        public long[] CalculateMedianHash256(string pathToImage)
         {
-            // Read image
-            var img = new MagickImage(pathToImage);
-
-            var settings = new QuantizeSettings
-            {
-                ColorSpace = ColorSpace.Gray,
-                Colors = 256
-            };
-
-            img.Quantize(settings);
-
-            var size = new MagickGeometry(16, 16) {IgnoreAspectRatio = true};
-
-            img.Resize(size);
-
-            // Copy pixel data
-            var pixels = img.GetPixels().GetValues();
+            var pixels = _transformer.TransformImage(pathToImage, 16, 16);
 
             // Calculate median
-            var pixelList = new List<byte>(260);
-            for (var i = 0; i < 256; i++)
-            {
-                pixelList.Add(pixels[3 * i]);
-            }
+            var pixelList = new List<byte>(pixels);
             pixelList.Sort();
             // Even amount of pixels
             var median = (byte)((pixelList[127] + pixelList[128]) / 2);
@@ -97,7 +68,7 @@ namespace DupImageLib
             {
                 for (var j = 0; j < 64; j++)
                 {
-                    if (pixels[(64*i + j) * 3] > median)
+                    if (pixels[64*i + j] > median)
                     {
                         hash64 |= (1UL << j);
                     }
@@ -117,25 +88,9 @@ namespace DupImageLib
         /// </summary>
         /// <param name="pathToImage">Path to image being hashed</param>
         /// <returns>64 bit difference hash</returns>
-        public static long CalculateDifferenceHash64(string pathToImage)
+        public long CalculateDifferenceHash64(string pathToImage)
         {
-            // Read image
-            var img = new MagickImage(pathToImage);
-
-            var settings = new QuantizeSettings
-            {
-                ColorSpace = ColorSpace.Gray,
-                Colors = 256
-            };
-
-            img.Quantize(settings);
-
-            var size = new MagickGeometry(9, 8) { IgnoreAspectRatio = true };
-
-            img.Resize(size);
-
-            // Copy pixel data
-            var pixels = img.GetPixels().GetValues();
+            var pixels = _transformer.TransformImage(pathToImage, 9, 8);
 
             // Iterate pixels and set hash to 1 if the left pixel is brighter than the right pixel.
             var hash = 0UL;
@@ -145,7 +100,7 @@ namespace DupImageLib
                 var rowStart = i * 9;
                 for (var j = 0; j < 8; j++)
                 {
-                    if (pixels[(rowStart + j) * 3] > pixels[(rowStart + j + 1) * 3])
+                    if (pixels[rowStart + j] > pixels[rowStart + j + 1])
                     {
                         hash |= (1UL << hashPos);
                     }
@@ -163,31 +118,15 @@ namespace DupImageLib
         /// <param name="path">Path for the image used for hash calculation.</param>
         /// <param name="dctMatrix">DCT coefficient matrix to be used.</param>
         /// <returns>64bit hash of the image</returns>
-        public static long CalculateDctHash(string path, float[][] dctMatrix)
+        public long CalculateDctHash(string path, float[][] dctMatrix)
         {
-            // Read image
-            var img = new MagickImage(path);
-
-            var settings = new QuantizeSettings
-            {
-                ColorSpace = ColorSpace.Gray,
-                Colors = 256
-            };
-
-            img.Quantize(settings);
-
-            var size = new MagickGeometry(32, 32) { IgnoreAspectRatio = true };
-
-            img.Resize(size);
-
-            // Copy pixel data
-            var imgPixels = img.GetPixels().GetValues();
+            var pixels = _transformer.TransformImage(path, 32, 32);
 
             // Copy pixel data and convert to float
             var fPixels = new float[1024];
             for (var i = 0; i < 1024; i++)
             {
-                fPixels[i] = imgPixels[i * 3] / 255.0f;
+                fPixels[i] = pixels[i] / 255.0f;
             }
 
             // Calculate dct
@@ -228,7 +167,7 @@ namespace DupImageLib
         /// </summary>
         /// <param name="path">Path for the image used for hash calculation.</param>
         /// <returns>64bit hash of the image</returns>
-        public static long CalculateDctHash(string path)
+        public long CalculateDctHash(string path)
         {
             var dctCoef = GenerateDctMatrix(32);
             return CalculateDctHash(path, dctCoef);
@@ -328,7 +267,7 @@ namespace DupImageLib
             for (var i = 0; i < size; i++)
             {
                 transpose[i] = new float[size];
-                for (int j = 0; j < size; j++)
+                for (var j = 0; j < size; j++)
                     transpose[i][j] = mat[j][i];
             }
             return transpose;
