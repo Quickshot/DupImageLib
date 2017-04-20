@@ -12,11 +12,18 @@ namespace DupImageLib
         private bool _isDctMatrixInitialized = false;
         private readonly object _dctMatrixLockObject = new object();
 
+        /// <summary>
+        /// Initializes a new instance of the ImageHashes class using ImageMagickTransformer.
+        /// </summary>
         public ImageHashes()
         {
             _transformer = new ImageMagickTransformer();
         }
 
+        /// <summary>
+        /// Initializes a new instance of the ImageHashes class using the given IImageTransformer.
+        /// </summary>
+        /// <param name="transformer">Implementation of the IImageTransformer to be used for image transformation.</param>
         public ImageHashes(IImageTransformer transformer)
         {
             _transformer = transformer;
