@@ -14,7 +14,7 @@ namespace DupImageLib
         /// <param name="stream">Stream to the image to be converted.</param>
         /// <param name="width">Width of the resized image.</param>
         /// <param name="height">Height of the resized image.</param>
-        /// <returns>Byte array containing 9 bit pixel values of the converted image.</returns>
+        /// <returns>Byte array containing 8 bit pixel values of the converted image.</returns>
         byte[] TransformImage(Stream stream, int width, int height);
     }
 }
