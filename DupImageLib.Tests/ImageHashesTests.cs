@@ -13,11 +13,38 @@ namespace DupImageLib.Tests
         }
 
         [Fact]
-        public void Test1()
+        public void CalculateDifferenceHash64()
         {
-            var hash = _imgHashes.CalculateMedianHash64(@"C:\Users\jptei\Dropbox\Pictures\Wallpapers Additional\00a10f6575cf41bce326f03bf5482fc2440727c4.jpg");
+            var hash = _imgHashes.CalculateDifferenceHash64(@"");
 
-            Assert.NotEqual(0L, hash);
+            Assert.Equal(0L, hash);
+        }
+
+        [Fact]
+        public void CalculateMedianHash64()
+        {
+            var hash = _imgHashes.CalculateMedianHash64(@"");
+
+            Assert.Equal(0xffffffff00000000, (ulong)hash);
+        }
+
+        [Fact]
+        public void CalculateMedianHash256()
+        {
+            var hash = _imgHashes.CalculateMedianHash256(@"");
+
+            Assert.Equal(0x0000000000000000u, (ulong)hash[0]);
+            Assert.Equal(0x0000000000000000u, (ulong)hash[1]);
+            Assert.Equal(0xffffffffffffffff, (ulong)hash[2]);
+            Assert.Equal(0xffffffffffffffff, (ulong)hash[3]);
+        }
+
+        [Fact]
+        public void CalculateDctHash64()
+        {
+            var hash = _imgHashes.CalculateDctHash("");
+
+            Assert.Equal(0xa4f8d63986aa52ad, (ulong)hash);
         }
 
         [Fact]
