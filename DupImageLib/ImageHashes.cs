@@ -255,7 +255,7 @@ namespace DupImageLib
         /// </summary>
         /// <param name="size">Size of the matrix.</param>
         /// <returns>Coefficient matrix.</returns>
-        public static float[][] GenerateDctMatrix(int size)
+        private static float[][] GenerateDctMatrix(int size)
         {
             var matrix = new float[size][];
             for (int i = 0; i < size; i++)
