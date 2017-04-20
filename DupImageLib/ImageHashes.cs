@@ -22,7 +22,7 @@ namespace DupImageLib
         /// </summary>
         /// <param name="pathToImage">Path to image being hashed</param>
         /// <returns>64 bit median hash</returns>
-        public long CalculateMedianHash64(string pathToImage)
+        public ulong CalculateMedianHash64(string pathToImage)
         {
             var pixels = _transformer.TransformImage(pathToImage, 8, 8);
 
@@ -43,7 +43,7 @@ namespace DupImageLib
             }
 
             // Done
-            return (long)hash;
+            return hash;
         }
 
         /// <summary>
@@ -51,7 +51,7 @@ namespace DupImageLib
         /// </summary>
         /// <param name="pathToImage">Path to image being hashed.</param>
         /// <returns>256 bit median hash. Composed of 4 longs.</returns>
-        public long[] CalculateMedianHash256(string pathToImage)
+        public ulong[] CalculateMedianHash256(string pathToImage)
         {
             var pixels = _transformer.TransformImage(pathToImage, 16, 16);
 
@@ -63,7 +63,7 @@ namespace DupImageLib
 
             // Iterate pixels and set them to 1 if over median and 0 if lower.
             var hash64 = 0UL;
-            var hash = new long[4];
+            var hash = new ulong[4];
             for (var i = 0; i < 4; i++)
             {
                 for (var j = 0; j < 64; j++)
@@ -73,7 +73,7 @@ namespace DupImageLib
                         hash64 |= (1UL << j);
                     }
                 }
-                hash[i] = (long)hash64;
+                hash[i] = hash64;
                 hash64 = 0UL;
             }
 
@@ -88,7 +88,7 @@ namespace DupImageLib
         /// </summary>
         /// <param name="pathToImage">Path to image being hashed</param>
         /// <returns>64 bit difference hash</returns>
-        public long CalculateDifferenceHash64(string pathToImage)
+        public ulong CalculateDifferenceHash64(string pathToImage)
         {
             var pixels = _transformer.TransformImage(pathToImage, 9, 8);
 
@@ -109,7 +109,7 @@ namespace DupImageLib
             }
 
             // Done
-            return (long)hash;
+            return hash;
         }
 
         /// <summary>
@@ -118,7 +118,7 @@ namespace DupImageLib
         /// <param name="path">Path for the image used for hash calculation.</param>
         /// <param name="dctMatrix">DCT coefficient matrix to be used.</param>
         /// <returns>64bit hash of the image</returns>
-        public long CalculateDctHash(string path, float[][] dctMatrix)
+        public ulong CalculateDctHash(string path, float[][] dctMatrix)
         {
             var pixels = _transformer.TransformImage(path, 32, 32);
 
@@ -159,7 +159,7 @@ namespace DupImageLib
             }
 
             // Done
-            return (long)hash;
+            return hash;
         }
 
         /// <summary>
@@ -167,7 +167,7 @@ namespace DupImageLib
         /// </summary>
         /// <param name="path">Path for the image used for hash calculation.</param>
         /// <returns>64bit hash of the image</returns>
-        public long CalculateDctHash(string path)
+        public ulong CalculateDctHash(string path)
         {
             var dctCoef = GenerateDctMatrix(32);
             return CalculateDctHash(path, dctCoef);
@@ -281,7 +281,7 @@ namespace DupImageLib
         /// <param name="hash1">First hash to be compared</param>
         /// <param name="hash2">Second hash to be compared</param>
         /// <returns>Image similarity in range [0,1]</returns>
-        public static float CompareHashes(long[] hash1, long[] hash2)
+        public static float CompareHashes(ulong[] hash1, ulong[] hash2)
         {
             // Check that hash lengths are same
             if (hash1.Length != hash2.Length)
@@ -296,7 +296,7 @@ namespace DupImageLib
             var hashDifference = new ulong[hashSize];
             for (var i = 0; i < hashSize; i++)  // Slightly faster than foreach
             {
-                hashDifference[i] = (ulong)hash1[i] ^ (ulong)hash2[i];
+                hashDifference[i] = hash1[i] ^ hash2[i];
             }
 
             // Calculate ones using Hamming weight. See http://en.wikipedia.org/wiki/Hamming_weight

@@ -17,7 +17,7 @@ namespace DupImageLib.Tests
         {
             var hash = _imgHashes.CalculateDifferenceHash64(@"");
 
-            Assert.Equal(0L, hash);
+            Assert.Equal(0UL, hash);
         }
 
         [Fact]
@@ -25,7 +25,7 @@ namespace DupImageLib.Tests
         {
             var hash = _imgHashes.CalculateMedianHash64(@"");
 
-            Assert.Equal(0xffffffff00000000, (ulong)hash);
+            Assert.Equal(0xffffffff00000000, hash);
         }
 
         [Fact]
@@ -33,10 +33,10 @@ namespace DupImageLib.Tests
         {
             var hash = _imgHashes.CalculateMedianHash256(@"");
 
-            Assert.Equal(0x0000000000000000u, (ulong)hash[0]);
-            Assert.Equal(0x0000000000000000u, (ulong)hash[1]);
-            Assert.Equal(0xffffffffffffffff, (ulong)hash[2]);
-            Assert.Equal(0xffffffffffffffff, (ulong)hash[3]);
+            Assert.Equal(0x0000000000000000UL, hash[0]);
+            Assert.Equal(0x0000000000000000UL, hash[1]);
+            Assert.Equal(0xffffffffffffffffUL, hash[2]);
+            Assert.Equal(0xffffffffffffffffUL, hash[3]);
         }
 
         [Fact]
@@ -44,14 +44,14 @@ namespace DupImageLib.Tests
         {
             var hash = _imgHashes.CalculateDctHash("");
 
-            Assert.Equal(0xa4f8d63986aa52ad, (ulong)hash);
+            Assert.Equal(0xa4f8d63986aa52ad, hash);
         }
 
         [Fact]
         public void CompareHashes_notEqualLength()
         {
-            var hash1 = new long[1];
-            var hash2 = new long[2];
+            var hash1 = new ulong[1];
+            var hash2 = new ulong[2];
 
             var exception = Record.Exception(() => ImageHashes.CompareHashes(hash1, hash2));
             Assert.NotNull(exception);
@@ -61,8 +61,8 @@ namespace DupImageLib.Tests
         [Fact]
         public void CompareHashes_identicalHashesSize64()
         {
-            var hash1 = new long[1];
-            var hash2 = new long[1];
+            var hash1 = new ulong[1];
+            var hash2 = new ulong[1];
 
             hash1[0] = 0x0fff0000ffff0000;
             hash2[0] = 0x0fff0000ffff0000;
@@ -74,8 +74,8 @@ namespace DupImageLib.Tests
         [Fact]
         public void CompareHashes_identicalHashesSize256()
         {
-            var hash1 = new long[4];
-            var hash2 = new long[4];
+            var hash1 = new ulong[4];
+            var hash2 = new ulong[4];
 
             hash1[0] = 0x0fff0000ffff0000;
             hash1[1] = 0x0fff0000ffff0000;
@@ -94,11 +94,11 @@ namespace DupImageLib.Tests
         [Fact]
         public void CompareHashes_nonIdenticalHashes()
         {
-            var hash1 = new long[1];
-            var hash2 = new long[1];
+            var hash1 = new ulong[1];
+            var hash2 = new ulong[1];
 
             hash1[0] = 0L;
-            hash2[0] = -1L;
+            hash2[0] = ulong.MaxValue;
 
             var result = ImageHashes.CompareHashes(hash1, hash2);
             Assert.Equal(0.0f, result, 4);
@@ -107,11 +107,11 @@ namespace DupImageLib.Tests
         [Fact]
         public void CompareHashes_halfIdenticalHashes()
         {
-            var hash1 = new long[1];
-            var hash2 = new long[1];
+            var hash1 = new ulong[1];
+            var hash2 = new ulong[1];
 
             hash1[0] = 0x00000000ffffffff;
-            hash2[0] = -1L;
+            hash2[0] = ulong.MaxValue;
 
             var result = ImageHashes.CompareHashes(hash1, hash2);
             Assert.Equal(0.5f, result, 4);
