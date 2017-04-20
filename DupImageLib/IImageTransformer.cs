@@ -1,7 +1,9 @@
-﻿namespace DupImageLib
+﻿using System.IO;
+
+namespace DupImageLib
 {
     public interface IImageTransformer
     {
-        byte[] TransformImage(string path, int width, int height);
+        byte[] TransformImage(Stream stream, int width, int height);
     }
 }

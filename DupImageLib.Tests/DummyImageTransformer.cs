@@ -1,8 +1,10 @@
-﻿namespace DupImageLib.Tests
+﻿using System.IO;
+
+namespace DupImageLib.Tests
 {
     public class DummyImageTransformer : IImageTransformer
     {
-        public byte[] TransformImage(string path, int width, int height)
+        public byte[] TransformImage(Stream stream, int width, int height)
         {
             var pixels = new byte[width * height];
             byte pixelValue = 0;

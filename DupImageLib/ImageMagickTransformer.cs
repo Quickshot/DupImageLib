@@ -1,13 +1,14 @@
-﻿using ImageMagick;
+﻿using System.IO;
+using ImageMagick;
 
 namespace DupImageLib
 {
     public class ImageMagickTransformer : IImageTransformer
     {
-        public byte[] TransformImage(string path, int width, int height)
+        public byte[] TransformImage(Stream stream, int width, int height)
         {
             // Read image
-            var img = new MagickImage(path);
+            var img = new MagickImage(stream);
 
             var settings = new QuantizeSettings
             {

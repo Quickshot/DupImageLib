@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using Xunit;
 
 namespace DupImageLib.Tests
@@ -15,7 +16,8 @@ namespace DupImageLib.Tests
         [Fact]
         public void CalculateDifferenceHash64()
         {
-            var hash = _imgHashes.CalculateDifferenceHash64(@"");
+            Stream stream = null;
+            var hash = _imgHashes.CalculateDifferenceHash64(stream);
 
             Assert.Equal(0UL, hash);
         }
@@ -23,7 +25,8 @@ namespace DupImageLib.Tests
         [Fact]
         public void CalculateMedianHash64()
         {
-            var hash = _imgHashes.CalculateMedianHash64(@"");
+            Stream stream = null;
+            var hash = _imgHashes.CalculateMedianHash64(stream);
 
             Assert.Equal(0xffffffff00000000, hash);
         }
@@ -31,7 +34,8 @@ namespace DupImageLib.Tests
         [Fact]
         public void CalculateMedianHash256()
         {
-            var hash = _imgHashes.CalculateMedianHash256(@"");
+            Stream stream = null;
+            var hash = _imgHashes.CalculateMedianHash256(stream);
 
             Assert.Equal(0x0000000000000000UL, hash[0]);
             Assert.Equal(0x0000000000000000UL, hash[1]);
@@ -42,7 +46,8 @@ namespace DupImageLib.Tests
         [Fact]
         public void CalculateDctHash64()
         {
-            var hash = _imgHashes.CalculateDctHash("");
+            Stream stream = null;
+            var hash = _imgHashes.CalculateDctHash(stream);
 
             Assert.Equal(0xa4f8d63986aa52ad, hash);
         }

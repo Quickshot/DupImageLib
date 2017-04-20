@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 
 namespace DupImageLib
 {
@@ -20,17 +21,28 @@ namespace DupImageLib
         /// <summary>
         /// Calculates a 64 bit hash for the given image using median algorithm.
         /// </summary>
-        /// <param name="pathToImage">Path to image being hashed</param>
-        /// <returns>64 bit median hash</returns>
+        /// <param name="pathToImage">Path to an image to be hashed.</param>
+        /// <returns>64 bit median hash of the input image.</returns>
         public ulong CalculateMedianHash64(string pathToImage)
         {
-            var pixels = _transformer.TransformImage(pathToImage, 8, 8);
+            var stream = new FileStream(pathToImage, FileMode.Open);
+            return CalculateMedianHash64(stream);
+        }
+
+        /// <summary>
+        /// Calculates a 64 bit hash for the given image using median algorithm.
+        /// </summary>
+        /// <param name="sourceStream">Stream containing an image to be hashed.</param>
+        /// <returns>64 bit median hash of the input image.</returns>
+        public ulong CalculateMedianHash64(Stream sourceStream)
+        {
+            var pixels = _transformer.TransformImage(sourceStream, 8, 8);
 
             // Calculate median
             var pixelList = new List<byte>(pixels);
             pixelList.Sort();
             // Even amount of pixels
-            var median = (byte) ((pixelList[31] + pixelList[32])/2);
+            var median = (byte)((pixelList[31] + pixelList[32]) / 2);
 
             // Iterate pixels and set them to 1 if over median and 0 if lower.
             var hash = 0UL;
@@ -49,11 +61,22 @@ namespace DupImageLib
         /// <summary>
         /// Calculates a 256 bit hash for the given image using median algorithm.
         /// </summary>
-        /// <param name="pathToImage">Path to image being hashed.</param>
-        /// <returns>256 bit median hash. Composed of 4 longs.</returns>
+        /// <param name="pathToImage">Path to an image to be hashed.</param>
+        /// <returns>256 bit median hash of the input image. Composed of 4 ulongs.</returns>
         public ulong[] CalculateMedianHash256(string pathToImage)
         {
-            var pixels = _transformer.TransformImage(pathToImage, 16, 16);
+            var stream = new FileStream(pathToImage, FileMode.Open);
+            return CalculateMedianHash256(stream);
+        }
+
+        /// <summary>
+        /// Calculates a 256 bit hash for the given image using median algorithm.
+        /// </summary>
+        /// <param name="sourceStream">Stream containing an image to be hashed.</param>
+        /// <returns>256 bit median hash of the input image. Composed of 4 ulongs.</returns>
+        public ulong[] CalculateMedianHash256(Stream sourceStream)
+        {
+            var pixels = _transformer.TransformImage(sourceStream, 16, 16);
 
             // Calculate median
             var pixelList = new List<byte>(pixels);
@@ -68,7 +91,7 @@ namespace DupImageLib
             {
                 for (var j = 0; j < 64; j++)
                 {
-                    if (pixels[64*i + j] > median)
+                    if (pixels[64 * i + j] > median)
                     {
                         hash64 |= (1UL << j);
                     }
@@ -86,11 +109,24 @@ namespace DupImageLib
         /// 
         /// See http://www.hackerfactor.com/blog/index.php?/archives/529-Kind-of-Like-That.html for algorithm description.
         /// </summary>
-        /// <param name="pathToImage">Path to image being hashed</param>
-        /// <returns>64 bit difference hash</returns>
+        /// <param name="pathToImage">Path to an image to be hashed.</param>
+        /// <returns>64 bit difference hash of the input image.</returns>
         public ulong CalculateDifferenceHash64(string pathToImage)
         {
-            var pixels = _transformer.TransformImage(pathToImage, 9, 8);
+            var stream = new FileStream(pathToImage, FileMode.Open);
+            return CalculateDifferenceHash64(stream);
+        }
+
+        /// <summary>
+        /// Calculates 64 bit hash for the given image using difference hash.
+        /// 
+        /// See http://www.hackerfactor.com/blog/index.php?/archives/529-Kind-of-Like-That.html for algorithm description.
+        /// </summary>
+        /// <param name="sourceStream">Stream containing an image to be hashed.</param>
+        /// <returns>64 bit difference hash of the input image.</returns>
+        public ulong CalculateDifferenceHash64(Stream sourceStream)
+        {
+            var pixels = _transformer.TransformImage(sourceStream, 9, 8);
 
             // Iterate pixels and set hash to 1 if the left pixel is brighter than the right pixel.
             var hash = 0UL;
@@ -115,12 +151,12 @@ namespace DupImageLib
         /// <summary>
         /// Calculates a hash for the given image using dct algorithm
         /// </summary>
-        /// <param name="path">Path for the image used for hash calculation.</param>
+        /// <param name="sourceStream">Stream to the image used for hash calculation.</param>
         /// <param name="dctMatrix">DCT coefficient matrix to be used.</param>
-        /// <returns>64bit hash of the image</returns>
-        public ulong CalculateDctHash(string path, float[][] dctMatrix)
+        /// <returns>64 bit difference hash of the input image.</returns>
+        public ulong CalculateDctHash(Stream sourceStream, float[][] dctMatrix)
         {
-            var pixels = _transformer.TransformImage(path, 32, 32);
+            var pixels = _transformer.TransformImage(sourceStream, 32, 32);
 
             // Copy pixel data and convert to float
             var fPixels = new float[1024];
@@ -165,12 +201,24 @@ namespace DupImageLib
         /// <summary>
         /// Calculates a hash for the given image using dct algorithm
         /// </summary>
-        /// <param name="path">Path for the image used for hash calculation.</param>
-        /// <returns>64bit hash of the image</returns>
+        /// <param name="path">Path to the image used for hash calculation.</param>
+        /// <returns>64 bit difference hash of the input image.</returns>
         public ulong CalculateDctHash(string path)
         {
+            var stream = new FileStream(path, FileMode.Open);
             var dctCoef = GenerateDctMatrix(32);
-            return CalculateDctHash(path, dctCoef);
+            return CalculateDctHash(stream, dctCoef);
+        }
+
+        /// <summary>
+        /// Calculates a hash for the given image using dct algorithm
+        /// </summary>
+        /// <param name="sourceStream">Stream to the image used for hash calculation.</param>
+        /// <returns>64 bit difference hash of the input image.</returns>
+        public ulong CalculateDctHash(Stream sourceStream)
+        {
+            var dctCoef = GenerateDctMatrix(32);
+            return CalculateDctHash(sourceStream, dctCoef);
         }
 
         /// <summary>
