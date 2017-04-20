@@ -8,6 +8,10 @@ namespace DupImageLib
     {
         private readonly IImageTransformer _transformer;
 
+        private float[][] _dctMatrix;
+        private bool _isDctMatrixInitialized = false;
+        private readonly object _dctMatrixLockObject = new object();
+
         public ImageHashes()
         {
             _transformer = new ImageMagickTransformer();
@@ -152,10 +156,18 @@ namespace DupImageLib
         /// Calculates a hash for the given image using dct algorithm
         /// </summary>
         /// <param name="sourceStream">Stream to the image used for hash calculation.</param>
-        /// <param name="dctMatrix">DCT coefficient matrix to be used.</param>
         /// <returns>64 bit difference hash of the input image.</returns>
-        public ulong CalculateDctHash(Stream sourceStream, float[][] dctMatrix)
+        public ulong CalculateDctHash(Stream sourceStream)
         {
+            lock (_dctMatrixLockObject)
+            {
+                if (!_isDctMatrixInitialized)
+                {
+                    _dctMatrix = GenerateDctMatrix(32);
+                    _isDctMatrixInitialized = true;
+                }
+            }
+
             var pixels = _transformer.TransformImage(sourceStream, 32, 32);
 
             // Copy pixel data and convert to float
@@ -166,7 +178,7 @@ namespace DupImageLib
             }
 
             // Calculate dct
-            var dctPixels = ComputeDct(fPixels, dctMatrix);
+            var dctPixels = ComputeDct(fPixels, _dctMatrix);
 
             // Get 8*8 area from 1,1 to 8,8, ignoring lowest frequencies for improved detection
             var dctHashPixels = new float[64];
@@ -206,19 +218,7 @@ namespace DupImageLib
         public ulong CalculateDctHash(string path)
         {
             var stream = new FileStream(path, FileMode.Open);
-            var dctCoef = GenerateDctMatrix(32);
-            return CalculateDctHash(stream, dctCoef);
-        }
-
-        /// <summary>
-        /// Calculates a hash for the given image using dct algorithm
-        /// </summary>
-        /// <param name="sourceStream">Stream to the image used for hash calculation.</param>
-        /// <returns>64 bit difference hash of the input image.</returns>
-        public ulong CalculateDctHash(Stream sourceStream)
-        {
-            var dctCoef = GenerateDctMatrix(32);
-            return CalculateDctHash(sourceStream, dctCoef);
+            return CalculateDctHash(stream);
         }
 
         /// <summary>
