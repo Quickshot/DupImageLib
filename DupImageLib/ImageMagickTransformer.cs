@@ -3,6 +3,9 @@ using ImageMagick;
 
 namespace DupImageLib
 {
+    /// <summary>
+    /// Implements IImageTransformer interface using Magick.NET for image transforms.
+    /// </summary>
     public class ImageMagickTransformer : IImageTransformer
     {
         public byte[] TransformImage(Stream stream, int width, int height)
