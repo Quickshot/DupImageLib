@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Runtime.InteropServices.ComTypes;
 using Xunit;
 
 namespace DupImageLib.Tests
@@ -120,6 +121,16 @@ namespace DupImageLib.Tests
 
             var result = ImageHashes.CompareHashes(hash1, hash2);
             Assert.Equal(0.5f, result, 4);
+        }
+
+        [Theory]
+        [InlineData(new object[]{ 0x0fff0000ffff0000, 0x0fff0000ffff0000, 1.0f})]
+        [InlineData(new object[] { 0UL, ulong.MaxValue, 0.0f })]
+        [InlineData(new object[] { 0x00000000ffffffff, ulong.MaxValue, 0.5f })]
+        public void CompareHashes_ulongVersion(ulong hash1, ulong hash2, float similarity)
+        {
+            var result = ImageHashes.CompareHashes(hash1, hash2);
+            Assert.Equal(similarity, result, 4);
         }
     }
 }

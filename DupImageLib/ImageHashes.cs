@@ -330,6 +330,25 @@ namespace DupImageLib
 
         /// <summary>
         /// Compare hashes of two images using Hamming distance. Result of 1 indicates images being 
+        /// same, while result of 0 indicates completely different images.
+        /// </summary>
+        /// <param name="hash1">First hash to be compared</param>
+        /// <param name="hash2">Second hash to be compared</param>
+        /// <returns>Image similarity in range [0,1]</returns>
+        public static float CompareHashes(ulong hash1, ulong hash2)
+        {
+            // XOR hashes
+            var hashDifference = hash1 ^ hash2;
+
+            // Calculate ones
+            var onesInHash = HammingWeight(hashDifference);
+
+            // Return result as a float between 0 and 1.
+            return 1.0f - onesInHash / 64.0f;
+        }
+
+        /// <summary>
+        /// Compare hashes of two images using Hamming distance. Result of 1 indicates images being 
         /// same, while result of 0 indicates completely different images. Hash size is inferred from 
         /// the size of Hash array in first image.
         /// </summary>
@@ -354,18 +373,31 @@ namespace DupImageLib
                 hashDifference[i] = hash1[i] ^ hash2[i];
             }
 
-            // Calculate ones using Hamming weight. See http://en.wikipedia.org/wiki/Hamming_weight
+            // Calculate ones
             for (var i = 0; i < hashSize; i++)
             {
-                var x = hashDifference[i];
-                x -= (x >> 1) & M1;
-                x = (x & M2) + ((x >> 2) & M2);
-                x = (x + (x >> 4)) & M4;
-                onesInHash += (x * H01) >> 56;
+                onesInHash += HammingWeight(hashDifference[i]);
             }
 
             // Return result as a float between 0 and 1.
             return 1.0f - onesInHash/(hashSize * 64.0f);    //Assuming 64bit variables
+        }
+
+        /// <summary>
+        /// Calculate ones in hash using Hamming weight. See http://en.wikipedia.org/wiki/Hamming_weight
+        /// </summary>
+        /// <param name="hash">Input value</param>
+        /// <returns>Count of ones in input value</returns>
+        private static ulong HammingWeight(ulong hash)
+        {
+            var onesInHash = 0UL;
+            
+            hash -= (hash >> 1) & M1;
+            hash = (hash & M2) + ((hash >> 2) & M2);
+            hash = (hash + (hash >> 4)) & M4;
+            onesInHash = (hash * H01) >> 56;
+
+            return onesInHash;
         }
 
         // Hamming distance constants. See http://en.wikipedia.org/wiki/Hamming_weight for explanation.
