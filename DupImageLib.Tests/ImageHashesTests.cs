@@ -24,6 +24,18 @@ namespace DupImageLib.Tests
         }
 
         [Fact]
+        public void CalculateDifferenceHash256()
+        {
+            Stream stream = null;
+            var hash = _imgHashes.CalculateDifferenceHash256(stream);
+
+            Assert.Equal(0UL, hash[0]);
+            Assert.Equal(0UL, hash[1]);
+            Assert.Equal(0UL, hash[2]);
+            Assert.Equal(0x0001000000000000UL, hash[3]);
+        }
+
+        [Fact]
         public void CalculateMedianHash64()
         {
             Stream stream = null;

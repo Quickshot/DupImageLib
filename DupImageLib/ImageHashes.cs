@@ -160,6 +160,59 @@ namespace DupImageLib
         }
 
         /// <summary>
+        /// Calculates 256 bit hash for the given image using difference hash.
+        /// 
+        /// See http://www.hackerfactor.com/blog/index.php?/archives/529-Kind-of-Like-That.html for algorithm description.
+        /// </summary>
+        /// <param name="pathToImage">Path to an image to be hashed.</param>
+        /// <returns>64 bit difference hash of the input image.</returns>
+        public ulong[] CalculateDifferenceHash256(string pathToImage)
+        {
+            var stream = new FileStream(pathToImage, FileMode.Open);
+            return CalculateDifferenceHash256(stream);
+        }
+
+        /// <summary>
+        /// Calculates 256 bit hash for the given image using difference hash.
+        /// 
+        /// See http://www.hackerfactor.com/blog/index.php?/archives/529-Kind-of-Like-That.html for algorithm description.
+        /// </summary>
+        /// <param name="sourceStream">Stream containing an image to be hashed.</param>
+        /// <returns>64 bit difference hash of the input image.</returns>
+        public ulong[] CalculateDifferenceHash256(Stream sourceStream)
+        {
+            var pixels = _transformer.TransformImage(sourceStream, 17, 16);
+
+            // Iterate pixels and set hash to 1 if the left pixel is brighter than the right pixel.
+            var hash = new ulong[4];
+            var hashPos = 0;
+            var hashPart = 0;
+            for (var i = 0; i < 16; i++)
+            {
+                var rowStart = i * 17;
+                for (var j = 0; j < 16; j++)
+                {
+                    if (pixels[rowStart + j] > pixels[rowStart + j + 1])
+                    {
+                        hash[hashPart] |= (1UL << hashPos);
+                    }
+                    if (hashPos == 63)
+                    {
+                        hashPos = 0;
+                        hashPart++;
+                    }
+                    else
+                    {
+                        hashPos++;
+                    }
+                }
+            }
+
+            // Done
+            return hash;
+        }
+
+        /// <summary>
         /// Calculates a hash for the given image using dct algorithm
         /// </summary>
         /// <param name="sourceStream">Stream to the image used for hash calculation.</param>
