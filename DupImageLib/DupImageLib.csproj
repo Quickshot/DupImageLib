@@ -2,6 +2,18 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard1.4</TargetFramework>
+    <PackageId>DupImageLib</PackageId>
+    <PackageVersion>1.0.0</PackageVersion>
+    <Authors>Jukka Teittinen</Authors>
+    <Description>ImageDupLib offers several different perceptual hashing algorithms for detecting similar or duplicate images.</Description>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <PackageReleaseNotes>First release</PackageReleaseNotes>
+    <Copyright>Copyright 2017 (c) Jukka Teittinen. All rights reserved.</Copyright>
+    <PackageLicenseUrl>https://raw.githubusercontent.com/Quickshot/DupImageLib/master/LICENSE</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/Quickshot/DupImageLib</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/Quickshot/DupImageLib</RepositoryUrl>
+    <RepositoryType>Git</RepositoryType>
+    <PackageTags>Image Duplicate Similar Perceptual Hash</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>
