@@ -19,6 +19,8 @@ DupImageLib implements the following perceptual hash algorithms:
 - ### DCT (pHash)
   - Discrete cosine transform based algorithm. Similar to the one implemented in [pHash library](http://www.phash.org/). Detailed explanation of the algorithm can be found [here](http://www.hackerfactor.com/blog/index.php?/archives/432-Looks-Like-It.html). Slower than any of the previous algorithms, but has better tolerance to image modifications. Produces 64 bit hashes.
 
+All algorithms accepts the image input as a stream or as a path to filesystem location.
+
 DupImageLib also provides a function to compare hashes to return the similarity of the hashes.
 
 DupImageLib uses [Magick.NET](https://github.com/dlemstra/Magick.NET) for image processing needs. Users of DupImageLib can use their own image processing library by providing an implementation of IImageTransformer and passing that to the ImageHashes constructor.
