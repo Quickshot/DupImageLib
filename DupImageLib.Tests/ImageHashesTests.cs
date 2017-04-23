@@ -57,6 +57,15 @@ namespace DupImageLib.Tests
         }
 
         [Fact]
+        public void CalculateAverageHash64()
+        {
+            Stream stream = null;
+            var hash = _imgHashes.CalculateAverageHash64(stream);
+
+            Assert.Equal(0xffffffff00000000, hash);
+        }
+
+        [Fact]
         public void CalculateDctHash64()
         {
             Stream stream = null;

@@ -30,6 +30,49 @@ namespace DupImageLib
         }
 
         /// <summary>
+        /// Calculates a 64 bit hash for the given image using average algorithm.
+        /// </summary>
+        /// <param name="pathToImage">Path to an image to be hashed.</param>
+        /// <returns>64 bit average hash of the input image.</returns>
+        public ulong CalculateAverageHash64(string pathToImage)
+        {
+            var stream = new FileStream(pathToImage, FileMode.Open);
+            return CalculateAverageHash64(stream);
+        }
+
+        /// <summary>
+        /// Calculates a 64 bit hash for the given image using average algorithm.
+        /// </summary>
+        /// <param name="sourceStream">Stream containing an image to be hashed.</param>
+        /// <returns>64 bit average hash of the input image.</returns>
+        public ulong CalculateAverageHash64(Stream sourceStream)
+        {
+            var pixels = _transformer.TransformImage(sourceStream, 8, 8);
+
+            // Calculate average
+            var pixelList = new List<byte>(pixels);
+            var total = 0;
+            foreach (var pixel in pixelList)
+            {
+                total += pixel;
+            }
+            var average = total / 64;
+
+            // Iterate pixels and set them to 1 if over average and 0 if lower.
+            var hash = 0UL;
+            for (var i = 0; i < 64; i++)
+            {
+                if (pixels[i] > average)
+                {
+                    hash |= (1UL << i);
+                }
+            }
+
+            // Done
+            return hash;
+        }
+
+        /// <summary>
         /// Calculates a 64 bit hash for the given image using median algorithm.
         /// 
         /// Works by converting the image to 8x8 greyscale image, finding the median pixel value from it, and then marking
