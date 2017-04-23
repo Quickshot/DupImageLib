@@ -31,6 +31,10 @@ namespace DupImageLib
 
         /// <summary>
         /// Calculates a 64 bit hash for the given image using median algorithm.
+        /// 
+        /// Works by converting the image to 8x8 greyscale image, finding the median pixel value from it, and then marking
+        /// all pixels where value is greater than median value as 1 in the resulting hash. Should be more resistant to non-linear
+        /// image edits when compared agains average based implementation.
         /// </summary>
         /// <param name="pathToImage">Path to an image to be hashed.</param>
         /// <returns>64 bit median hash of the input image.</returns>
@@ -42,6 +46,10 @@ namespace DupImageLib
 
         /// <summary>
         /// Calculates a 64 bit hash for the given image using median algorithm.
+        /// 
+        /// Works by converting the image to 8x8 greyscale image, finding the median pixel value from it, and then marking
+        /// all pixels where value is greater than median value as 1 in the resulting hash. Should be more resistant to non-linear
+        /// image edits when compared agains average based implementation.
         /// </summary>
         /// <param name="sourceStream">Stream containing an image to be hashed.</param>
         /// <returns>64 bit median hash of the input image.</returns>
@@ -71,6 +79,10 @@ namespace DupImageLib
 
         /// <summary>
         /// Calculates a 256 bit hash for the given image using median algorithm.
+        /// 
+        /// Works by converting the image to 16x16 greyscale image, finding the median pixel value from it, and then marking
+        /// all pixels where value is greater than median value as 1 in the resulting hash. Should be more resistant to non-linear
+        /// image edits when compared agains average based implementation.
         /// </summary>
         /// <param name="pathToImage">Path to an image to be hashed.</param>
         /// <returns>256 bit median hash of the input image. Composed of 4 ulongs.</returns>
@@ -82,6 +94,10 @@ namespace DupImageLib
 
         /// <summary>
         /// Calculates a 256 bit hash for the given image using median algorithm.
+        /// 
+        /// Works by converting the image to 16x16 greyscale image, finding the median pixel value from it, and then marking
+        /// all pixels where value is greater than median value as 1 in the resulting hash. Should be more resistant to non-linear
+        /// image edits when compared agains average based implementation.
         /// </summary>
         /// <param name="sourceStream">Stream containing an image to be hashed.</param>
         /// <returns>256 bit median hash of the input image. Composed of 4 ulongs.</returns>
