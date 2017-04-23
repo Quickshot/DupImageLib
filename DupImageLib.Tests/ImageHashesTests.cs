@@ -1,6 +1,5 @@
 using System;
 using System.IO;
-using System.Runtime.InteropServices.ComTypes;
 using Xunit;
 
 namespace DupImageLib.Tests
@@ -145,7 +144,7 @@ namespace DupImageLib.Tests
         }
 
         [Theory]
-        [InlineData(new object[]{ 0x0fff0000ffff0000, 0x0fff0000ffff0000, 1.0f})]
+        [InlineData(new object[] { 0x0fff0000ffff0000, 0x0fff0000ffff0000, 1.0f })]
         [InlineData(new object[] { 0UL, ulong.MaxValue, 0.0f })]
         [InlineData(new object[] { 0x00000000ffffffff, ulong.MaxValue, 0.5f })]
         public void CompareHashes_ulongVersion(ulong hash1, ulong hash2, float similarity)

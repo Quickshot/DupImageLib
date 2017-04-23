@@ -305,7 +305,7 @@ namespace DupImageLib
             {
                 for (var y = 0; y < 8; y++)
                 {
-                    dctHashPixels[x + y*8] = dctPixels[x+1][y+1];
+                    dctHashPixels[x + y * 8] = dctPixels[x + 1][y + 1];
                 }
             }
 
@@ -350,7 +350,7 @@ namespace DupImageLib
         {
             // Get the size of dct matrix. We assume that the image is same size as dctMatrix
             var size = dctMatrix.GetLength(0);
-            
+
             // Make image matrix
             var imageMat = new float[size][];
             for (var i = 0; i < size; i++)
@@ -362,7 +362,7 @@ namespace DupImageLib
             {
                 for (var x = 0; x < size; x++)
                 {
-                    imageMat[y][x] = image[x + y*size];
+                    imageMat[y][x] = image[x + y * size];
                 }
             }
 
@@ -382,7 +382,7 @@ namespace DupImageLib
                 matrix[i] = new float[size];
             }
 
-            var c1 = Math.Sqrt(2.0f/size);
+            var c1 = Math.Sqrt(2.0f / size);
 
             for (var j = 0; j < size; j++)
             {
@@ -393,7 +393,7 @@ namespace DupImageLib
             {
                 for (var i = 1; i < size; i++)
                 {
-                    matrix[i][j] = (float) (c1*Math.Cos(((2 * j + 1) * i * Math.PI) / (2.0d * size)));
+                    matrix[i][j] = (float)(c1 * Math.Cos(((2 * j + 1) * i * Math.PI) / (2.0d * size)));
                 }
             }
             return matrix;
@@ -492,7 +492,7 @@ namespace DupImageLib
             }
 
             // Return result as a float between 0 and 1.
-            return 1.0f - onesInHash/(hashSize * 64.0f);    //Assuming 64bit variables
+            return 1.0f - onesInHash / (hashSize * 64.0f);    //Assuming 64bit variables
         }
 
         /// <summary>
@@ -502,12 +502,10 @@ namespace DupImageLib
         /// <returns>Count of ones in input value</returns>
         private static ulong HammingWeight(ulong hash)
         {
-            var onesInHash = 0UL;
-            
             hash -= (hash >> 1) & M1;
             hash = (hash & M2) + ((hash >> 2) & M2);
             hash = (hash + (hash >> 4)) & M4;
-            onesInHash = (hash * H01) >> 56;
+            var onesInHash = (hash * H01) >> 56;
 
             return onesInHash;
         }
