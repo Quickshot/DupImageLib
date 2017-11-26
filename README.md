@@ -25,6 +25,20 @@ DupImageLib also provides a function to compare hashes to return the similarity 
 
 DupImageLib uses [Magick.NET](https://github.com/dlemstra/Magick.NET) for image processing needs. Users of DupImageLib can use their own image processing library by providing an implementation of IImageTransformer and passing that to the ImageHashes constructor.
 
+## Usage
+
+### Example
+
+```csharp
+// Create new ImageHashes instance using ImageMackick as image manipulation library
+var imageHasher = new ImageHashes(new ImageMagickTransformer());
+// Calculate 64 bit hashes for the images using difference algorithm
+var hash1 = imageHasher.CalculateDifferenceHash64(@"testimage1.png");
+var hash2 = imageHasher.CalculateDifferenceHash64(@"testimage2.png");
+// Calculate similarity between the hashes. Score of 1.0 indicates identical images.
+var similarity = ImageHashes.CompareHashes(hash1, hash2);
+```
+
 ## License
 
 This software is licensed under Apache 2.0 license. See LICENSE file for more information.
