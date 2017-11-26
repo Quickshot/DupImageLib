@@ -36,7 +36,7 @@ namespace DupImageLib
         /// <returns>64 bit average hash of the input image.</returns>
         public ulong CalculateAverageHash64(string pathToImage)
         {
-            var stream = new FileStream(pathToImage, FileMode.Open);
+            var stream = new FileStream(pathToImage, FileMode.Open, FileAccess.Read);
             return CalculateAverageHash64(stream);
         }
 
@@ -83,7 +83,7 @@ namespace DupImageLib
         /// <returns>64 bit median hash of the input image.</returns>
         public ulong CalculateMedianHash64(string pathToImage)
         {
-            var stream = new FileStream(pathToImage, FileMode.Open);
+            var stream = new FileStream(pathToImage, FileMode.Open, FileAccess.Read);
             return CalculateMedianHash64(stream);
         }
 
@@ -131,7 +131,7 @@ namespace DupImageLib
         /// <returns>256 bit median hash of the input image. Composed of 4 ulongs.</returns>
         public ulong[] CalculateMedianHash256(string pathToImage)
         {
-            var stream = new FileStream(pathToImage, FileMode.Open);
+            var stream = new FileStream(pathToImage, FileMode.Open, FileAccess.Read);
             return CalculateMedianHash256(stream);
         }
 
@@ -183,7 +183,7 @@ namespace DupImageLib
         /// <returns>64 bit difference hash of the input image.</returns>
         public ulong CalculateDifferenceHash64(string pathToImage)
         {
-            var stream = new FileStream(pathToImage, FileMode.Open);
+            var stream = new FileStream(pathToImage, FileMode.Open, FileAccess.Read);
             return CalculateDifferenceHash64(stream);
         }
 
@@ -227,7 +227,7 @@ namespace DupImageLib
         /// <returns>64 bit difference hash of the input image.</returns>
         public ulong[] CalculateDifferenceHash256(string pathToImage)
         {
-            var stream = new FileStream(pathToImage, FileMode.Open);
+            var stream = new FileStream(pathToImage, FileMode.Open, FileAccess.Read);
             return CalculateDifferenceHash256(stream);
         }
 
@@ -336,7 +336,7 @@ namespace DupImageLib
         /// <returns>64 bit difference hash of the input image.</returns>
         public ulong CalculateDctHash(string path)
         {
-            var stream = new FileStream(path, FileMode.Open);
+            var stream = new FileStream(path, FileMode.Open, FileAccess.Read);
             return CalculateDctHash(stream);
         }
 
