@@ -11,7 +11,7 @@ namespace DupImageLib.Tests
 
         public ImageMagickTransformerTests()
         {
-            _imgHashes = new ImageHashes(new ImageSharpTransformer());
+            _imgHashes = new ImageHashes(new ImageMagickTransformer());
         }
 
         [Fact]
