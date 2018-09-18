@@ -25,15 +25,8 @@ namespace DupImageLib
 
             img.Resize(size);
             
-            // Get pixel data from image and only return single channel instead of rgb data.
             var imgPixels = img.GetPixels().GetValues();
-            var pixels = new byte[width * height];
-            for (var i = 0; i < pixels.Length; i++)
-            {
-                pixels[i] = imgPixels[i * 3];
-            }
-
-            return pixels;
+            return imgPixels;
         }
     }
 }
