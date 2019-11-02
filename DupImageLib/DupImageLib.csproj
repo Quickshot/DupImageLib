@@ -9,7 +9,7 @@
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageReleaseNotes>Updated Magick.NET dependency to a newer version</PackageReleaseNotes>
     <Copyright>Copyright 2017 (c) Jukka Teittinen. All rights reserved.</Copyright>
-    <PackageLicenseUrl>https://raw.githubusercontent.com/Quickshot/DupImageLib/master/LICENSE</PackageLicenseUrl>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/Quickshot/DupImageLib</PackageProjectUrl>
     <RepositoryUrl>https://github.com/Quickshot/DupImageLib</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
