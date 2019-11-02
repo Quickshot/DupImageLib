@@ -25,8 +25,9 @@ namespace DupImageLib
 
             img.Resize(size);
             
-            var imgPixels = img.GetPixels().GetValues();
-            return imgPixels;
+            img.Format = MagickFormat.Gray;
+            
+            return img.ToByteArray();
         }
     }
 }
