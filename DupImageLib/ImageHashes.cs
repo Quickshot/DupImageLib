@@ -48,6 +48,7 @@ namespace DupImageLib
         public ulong CalculateAverageHash64(Stream sourceStream)
         {
             var pixels = _transformer.TransformImage(sourceStream, 8, 8);
+            sourceStream.Close();
 
             // Calculate average
             var pixelList = new List<byte>(pixels);
@@ -99,6 +100,7 @@ namespace DupImageLib
         public ulong CalculateMedianHash64(Stream sourceStream)
         {
             var pixels = _transformer.TransformImage(sourceStream, 8, 8);
+            sourceStream.Close();
 
             // Calculate median
             var pixelList = new List<byte>(pixels);
@@ -147,6 +149,7 @@ namespace DupImageLib
         public ulong[] CalculateMedianHash256(Stream sourceStream)
         {
             var pixels = _transformer.TransformImage(sourceStream, 16, 16);
+            sourceStream.Close();
 
             // Calculate median
             var pixelList = new List<byte>(pixels);
@@ -197,6 +200,7 @@ namespace DupImageLib
         public ulong CalculateDifferenceHash64(Stream sourceStream)
         {
             var pixels = _transformer.TransformImage(sourceStream, 9, 8);
+            sourceStream.Close();
 
             // Iterate pixels and set hash to 1 if the left pixel is brighter than the right pixel.
             var hash = 0UL;
@@ -241,6 +245,7 @@ namespace DupImageLib
         public ulong[] CalculateDifferenceHash256(Stream sourceStream)
         {
             var pixels = _transformer.TransformImage(sourceStream, 17, 16);
+            sourceStream.Close();
 
             // Iterate pixels and set hash to 1 if the left pixel is brighter than the right pixel.
             var hash = new ulong[4];
@@ -288,6 +293,7 @@ namespace DupImageLib
             }
 
             var pixels = _transformer.TransformImage(sourceStream, 32, 32);
+            sourceStream.Close();
 
             // Copy pixel data and convert to float
             var fPixels = new float[1024];
