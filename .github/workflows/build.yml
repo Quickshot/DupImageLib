@@ -1,0 +1,30 @@
+name: Build
+
+on:
+  push:
+    branches: [ master ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+    - name: Setup .NET Core 5
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 5.0.x
+    - name: Setup SonarQube scanner
+      run: dotnet tool install --global dotnet-sonarscanner
+    - name: Start SonarQube scanner
+      run: dotnet sonarscanner begin /k:"Quickshot_DupImageLib" /o:"quickshot" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.login=${{ secrets.SONARQUBE_TOKEN }} /d:sonar.cs.opencover.reportsPaths="TestResults/*/coverage.opencover.xml" /d:sonar.cs.vstest.reportsPaths="TestResults/*.trx"
+    - name: Install dependencies
+      run: dotnet restore
+    - name: Build
+      run: dotnet build --configuration Release --no-restore
+    - name: Run tests
+      run: dotnet test -r "TestResults" -l "trx;verbosity=normal" --collect:"XPlat Code Coverage" -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover
+    - name: End SonarQube scanner
+      run: dotnet sonarscanner end /d:sonar.login=${{ secrets.SONARQUBE_TOKEN }}
