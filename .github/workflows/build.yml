@@ -27,4 +27,7 @@ jobs:
     - name: Run tests
       run: dotnet test -r "TestResults" -l "trx;verbosity=normal" --collect:"XPlat Code Coverage" -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover
     - name: End SonarQube scanner
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       run: dotnet sonarscanner end /d:sonar.login=${{ secrets.SONAR_TOKEN }}
