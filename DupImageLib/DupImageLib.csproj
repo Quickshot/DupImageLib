@@ -1,19 +1,21 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0</TargetFrameworks>
+    <TargetFramework>netstandard2.0</TargetFramework>
     <PackageId>DupImageLib</PackageId>
-    <PackageVersion>1.1.3</PackageVersion>
+    <PackageVersion>1.2.0</PackageVersion>
     <Authors>Jukka Teittinen</Authors>
+    <Title>DupImageLib</Title>
     <Description>ImageDupLib offers several different perceptual hashing algorithms for detecting similar or duplicate images.</Description>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-    <Copyright>Copyright 2017 (c) Jukka Teittinen. All rights reserved.</Copyright>
+    <Copyright>Copyright 2020 (c) Jukka Teittinen. All rights reserved.</Copyright>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/Quickshot/DupImageLib</PackageProjectUrl>
     <RepositoryUrl>https://github.com/Quickshot/DupImageLib</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
     <PackageTags>Image Duplicate Similar Perceptual Hash</PackageTags>
-    <Version>1.1.3</Version>
+    <Version>1.2.0</Version>
+    <PackageReleaseNotes>https://github.com/Quickshot/DupImageLib/releases</PackageReleaseNotes>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <Platforms>AnyCPU;x64;x86</Platforms>
     <LangVersion>8.0</LangVersion>
