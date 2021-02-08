@@ -1,17 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Xunit;
+﻿using Xunit;
 
 namespace DupImageLib.Tests
 {
-    public class ImageMagickTransformerTests
+    public class ImageSharpTransformerTests
     {
         private readonly ImageHashes _imgHashes;
 
-        public ImageMagickTransformerTests()
+        public ImageSharpTransformerTests()
         {
-            _imgHashes = new ImageHashes(new ImageMagickTransformer());
+            _imgHashes = new ImageHashes(new ImageSharpTransformer());
         }
 
         [Fact]
@@ -31,5 +28,6 @@ namespace DupImageLib.Tests
 
             Assert.InRange(differrence, 0.49, 0.51);
         }
+
     }
 }

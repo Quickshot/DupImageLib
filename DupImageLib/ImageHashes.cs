@@ -17,7 +17,7 @@ namespace DupImageLib
         /// </summary>
         public ImageHashes()
         {
-            _transformer = new ImageMagickTransformer();
+            _transformer = new ImageSharpTransformer();
         }
 
         /// <summary>
