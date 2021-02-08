@@ -22,6 +22,6 @@ jobs:
     - name: Install dependencies
       run: dotnet restore
     - name: Create nuget
-      run: dotnet pack -p:PackageVersion=${{ env.RELEASE_VERSION }} --configuration Release -output .
+      run: dotnet pack -p:PackageVersion=${{ env.RELEASE_VERSION }} --configuration Release --output .
     - name: Push Nuget
       run: dotnet nuget push *.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{ secrets.NUGET_API_KEY }} --skip-duplicate
